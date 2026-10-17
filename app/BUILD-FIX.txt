@@ -1,0 +1,48 @@
+VisitSheet fix round — 2026-10-10
+
+Status: candidate fixes are in the working tree and the checks below were run on that tree. Nothing was committed or pushed.
+
+What changed
+1. Error page (src/app.js, views/partials/open.ejs, views/partials/close.ejs)
+   Session and template locals run before the body parser. The error handler sets those locals again, maps oversized bodies to 413 and unsupported charsets to 415, and renders error.ejs. If rendering fails, it sends a short HTML page with the disclaimer. Stack traces and filesystem paths are not written to the response. The layout partials tolerate missing locals.
+
+2. Edit visit details (views/visit.ejs)
+   Removed tabindex="-1" from the summary. Autofocus when focus=visit-details is unchanged.
+
+3. Large print (public/css/app.css)
+   body.large-print typography applies on screen (body text 26px, h1 40px). Print rules still force 10.5pt for a normal brief and 16pt for large print, so Letter/A4 page counts stay 1 and 2.
+
+4. Contract text and the second account
+   package.json engines and package-lock.json: node >=22. Added .nvmrc with 22.
+   README: Node.js 22 LTS or newer, English only, one demo account (Robin Sample).
+   Removed the Alex Example / caregiver account from src/db.js, the login page, and the seed log line. Opening a database deletes any leftover caregiver rows. Login copy no longer mentions a second account.
+   .mono uses overflow-wrap: anywhere.
+
+5. Tests (tests/qa.test.js)
+   Carry source ids come from the next visit page. Assertions cover 302 plus append, duplicate no-op, already-asked 404, and cross-sandbox 404.
+   Removed the `|| true` and `&& false` tautologies.
+   Added checks for 413/415 app error pages, the summary without tabindex, on-screen large-print CSS, Node 22 files, one demo account, and .mono wrapping.
+   Isolation cases log in twice as demo@visitsheet.example instead of using a second account.
+
+Commands and results
+- node v20.19.2: npm test
+  1 pass, 0 fail (tests/qa.test.js). Log lines: "Request rejected 415 charset.unsupported" and "Request rejected 413 entity.too.large".
+- Node v22.23.3 from the official linux-x64 tarball, copy of this tree: npm ci && npm test
+  npm ci added 117 packages, 0 vulnerabilities. npm test: 1 pass, 0 fail.
+- Throwaway: carryQuestion threw before doing any work. npm test failed (1 fail). Failures included "carry status: 500", duplicate 500, asked source 500, and cross-sandbox 500. src/db.js was restored byte-for-byte. npm test afterward: 1 pass, 0 fail.
+- HTTP, seeded server on 127.0.0.1:3765 (stopped after the checks):
+  Logged-in POST of 70,000 A's to /visits/1/takeaways → 413, 1393-byte app page, /css/app.css, disclaimer, no ReferenceError, no /workspace, no <pre>.
+  Logged-out POST, Content-Type charset=foo → 415, 949-byte app page, same checks.
+- Headless Chrome 154.0.8037.97:
+  Tab after "Delete visit" → summary#visit-details. Enter opens it; next Tab is #edit-title. Space does the same.
+  On-screen brief at 1100px: h1 32px vs 40px with ?text=large; disclaimer 15.2px vs 26px.
+  Print emulation: header display none; normal h1 16pt and body 10.5pt; large-print h1 22pt and body 16pt.
+  pdfinfo: normal brief 1 Letter page and 1 A4 page; large-print 2 Letter pages and 2 A4 pages. Disclaimer text is in the PDF. Nav text is not.
+  390px with Large text: scrollWidth 390 on login, about, display, dashboard, visit, medicines, about me, brief, and large-print brief. Login shows only Robin Sample.
+- npm run seed on data/visitsheet.db. The users table has one row: demo@visitsheet.example (template).
+
+Remaining gaps
+- No git commit, no push, no public URL.
+- Browser evidence is headless Chrome only.
+- Not changed, on purpose: future-dated carry wording, session TTL, Asked checkbox auto-submit, medicines table semantics, and the other optional notes in the review.
+- This machine's default `node` is v20.19.2. `npm` on that binary prints an EBADENGINE warning because engines now say >=22. The suite still passed there, and the Node 22 npm ci path passed as well.

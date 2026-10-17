@@ -1,0 +1,9 @@
+<%- include('partials/open') %>
+<h1>Reset demo data?</h1>
+<p>This restores the fictional sample for this login only. Display choices go back to off. Other logins are left as they are.</p>
+<form method="post" action="/demo/reset" class="inline-form">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <button type="submit" class="danger">Reset demo data</button>
+  <a class="button secondary" href="/settings">Cancel</a>
+</form>
+<%- include('partials/close') %>

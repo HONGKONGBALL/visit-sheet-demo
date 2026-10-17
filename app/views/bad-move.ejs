@@ -1,0 +1,9 @@
+<%- include('partials/open') %>
+<h1>That move is not valid</h1>
+<p>Move a question up or down.</p>
+<% if (visitId) { %>
+  <p><a href="/visits/<%= visitId %>#questions">Back to the visit</a></p>
+<% } else { %>
+  <p><a href="/dashboard">Back to the dashboard</a></p>
+<% } %>
+<%- include('partials/close') %>

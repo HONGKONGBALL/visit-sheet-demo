@@ -1,0 +1,123 @@
+<%- include('partials/open') %>
+<article class="brief">
+  <p class="brief-tools no-print">
+    <a class="button secondary" href="/visits/<%= visit.id %>">Back to visit</a>
+    <button type="button" id="print-button">Print</button>
+    <% if (!largePrint) { %>
+      <a class="button secondary" href="/visits/<%= visit.id %>/brief?text=large">Large-print version</a>
+    <% } else { %>
+      <a class="button secondary" href="/visits/<%= visit.id %>/brief">Regular brief</a>
+    <% } %>
+    <a class="button secondary" href="/visits/<%= visit.id %>/export.json">Download as JSON</a>
+  </p>
+  <p class="no-print hint">Printing uses your browser. The print button needs JavaScript. The browser print command works without it.</p>
+
+  <header class="brief-head">
+    <p class="kicker">Appointment brief</p>
+    <p class="who"><%= user.display_name %></p>
+    <h1><%= visit.title %></h1>
+    <p>
+      <time datetime="<%= visit.visit_date %>"><%= visit.visit_date %></time>
+      <% if (visit.with_whom) { %> · <%= visit.with_whom %><% } %>
+    </p>
+    <% if (user.helper_name) { %><p>Person helping: <%= user.helper_name %></p><% } %>
+  </header>
+
+  <section class="access-card" aria-labelledby="access-heading">
+    <h2 id="access-heading">How to communicate with me</h2>
+    <% if (needLabels.length) { %>
+      <ul>
+        <% needLabels.forEach(function (label) { %><li><%= label %></li><% }) %>
+      </ul>
+    <% } else { %>
+      <p>No communication needs selected.</p>
+    <% } %>
+    <% if (user.access_note) { %><p><%= user.access_note %></p><% } %>
+  </section>
+
+  <section aria-labelledby="questions-heading">
+    <h2 id="questions-heading">My questions (most important first)</h2>
+    <% if (!questions.length) { %>
+      <p>No questions yet.</p>
+    <% } else { %>
+      <div class="top-three">
+        <h3>If we only have time for three</h3>
+        <ol>
+          <% top.forEach(function (q) { %>
+            <li>
+              <span class="tick <%= q.asked ? 'is-on' : '' %>" aria-hidden="true"></span>
+              <span class="visually-hidden"><%= q.asked ? 'Asked. ' : 'Not asked. ' %></span>
+              <%= q.text %>
+            </li>
+          <% }) %>
+        </ol>
+      </div>
+      <div class="if-time">
+        <h3>If there is time</h3>
+        <% if (!rest.length) { %>
+          <p>No other questions.</p>
+        <% } else { %>
+          <ol start="<%= top.length + 1 %>">
+            <% rest.forEach(function (q) { %>
+              <li>
+                <span class="tick <%= q.asked ? 'is-on' : '' %>" aria-hidden="true"></span>
+                <span class="visually-hidden"><%= q.asked ? 'Asked. ' : 'Not asked. ' %></span>
+                <%= q.text %>
+              </li>
+            <% }) %>
+          </ol>
+        <% } %>
+      </div>
+    <% } %>
+  </section>
+
+  <section aria-labelledby="notes-heading">
+    <h2 id="notes-heading">My notes since last time</h2>
+    <% if (!diary.length) { %>
+      <p>No notes yet.</p>
+    <% } else { %>
+      <table>
+        <caption class="visually-hidden">Notes since last time</caption>
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">My words</th>
+            <th scope="col">Bother</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% diary.forEach(function (entry) { %>
+            <tr>
+              <td><time datetime="<%= entry.entry_date %>"><%= entry.entry_date %></time></td>
+              <td><%= entry.text %></td>
+              <td>Bothers me: <%= entry.bother %> / 10</td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } %>
+  </section>
+
+  <section aria-labelledby="meds-heading">
+    <h2 id="meds-heading">Medicines I take (as I typed them)</h2>
+    <% if (!medicines.length) { %>
+      <p>No medicines added yet.</p>
+    <% } else { %>
+      <ul class="med-lines">
+        <% medicines.forEach(function (medicine) { %>
+          <li><%= medicine.name %> / <%= medicine.dose_text %> / <%= medicine.when_text %></li>
+        <% }) %>
+      </ul>
+    <% } %>
+  </section>
+
+  <% if (visit.takeaways && visit.takeaways.trim()) { %>
+    <section aria-labelledby="takeaways-heading">
+      <h2 id="takeaways-heading">Takeaways</h2>
+      <p class="takeaways"><%= visit.takeaways %></p>
+    </section>
+  <% } %>
+
+  <p class="brief-disclaimer"><%= disclaimer %></p>
+</article>
+<%- include('partials/close') %>

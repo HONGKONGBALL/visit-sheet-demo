@@ -1,0 +1,57 @@
+VisitSheet
+
+This file records the fix round on 2026-10-10. It covers the error page, Edit visit details keyboard access, on-screen large print, the Node 22 contract, the single demo account, and carry-over tests.
+
+Start command:
+  npm install && npm run seed && npm start
+
+Port:
+  3000
+  Optional override: PORT
+  URL: http://localhost:3000
+
+Node.js:
+  22 LTS or newer (package.json engines ">=22", .nvmrc is 22).
+
+Login (one fictional demo account):
+  Robin Sample: demo@visitsheet.example / demo-pass-48
+  On the login page, "Fill in the demo login" fills that account.
+  Each successful login gets a fresh private copy of the fictional sample.
+  Dates are counted from the login day. The next visit is 7 days ahead.
+  There is no second demo account.
+
+What this round changed:
+  Parse errors render the app error page. A body over the 64KB limit is 413. An unsupported form charset is 415. The page includes the disclaimer and does not include a stack trace or filesystem path.
+  "Edit visit details" is in the tab order. Enter or Space opens it. The next Tab reaches the title field.
+  A large-print brief is larger on screen as well as in print.
+  Product docs and the seed use Node 22+ and the single Robin Sample account.
+
+npm test:
+  PASS. One test, "QA cases for the merged VisitSheet spec" (tests/qa.test.js).
+  Environment Node v20.19.2: 1 pass, 0 fail.
+  Fresh Node v22.23.3 (official linux-x64 tarball), npm ci && npm test on a copy of this tree: 1 pass, 0 fail. npm audit reported 0 vulnerabilities.
+  Where idea.md and the older qa.md differ, the test follows idea.md (dates relative to login, three seeded visits, one demo account).
+
+Carry-over checks inside that test, all observed passing:
+  The source id is read from the next visit page.
+  Carry POST returns 302 and appends the unasked question.
+  A second add of the same question returns 302 and does not add a duplicate.
+  An already-asked source returns 404.
+  A source from another login of the same account returns 404.
+  A throwaway edit that made carryQuestion throw failed this test (carry status 500). That edit was reverted. The npm test above is from the restored tree.
+
+Checks outside npm test (headless Chrome 154.0.8037.97):
+  On-screen large print, 1100px wide: brief h1 32px versus 40px with ?text=large; disclaimer 15.2px versus 26px. The large-print page has class large-print.
+  Print media: header is display:none. Normal brief text is 10.5pt (h1 16pt). Large-print text is 16pt (h1 22pt).
+  pdfinfo: normal brief is 1 Letter page and 1 A4 page. Large-print brief is 2 Letter pages and 2 A4 pages. The disclaimer is in the PDF text. "Log out" is not.
+  Width 390px with Large text on, including the login page: scrollWidth equals clientWidth (390) on login, about, display, dashboard, visit, medicines, about me, brief, and large-print brief. No element extends past the viewport. The login page shows only Robin Sample.
+  Keyboard on the visit page: Tab from "Delete visit" lands on summary#visit-details ("Edit visit details"). Enter opens it and the next Tab lands on #edit-title. Space does the same.
+
+HTTP spot checks against a seeded local server:
+  Logged-in POST of 70,000 A's to /visits/1/takeaways: 413, app error page, stylesheet link, disclaimer, no ReferenceError, no /workspace, no <pre>.
+  Logged-out POST with Content-Type charset=foo: 415, same kind of page.
+
+Known limits, left as they are:
+  No public deploy and no git push in this round.
+  Headless Chrome only. No screen reader, Firefox, Safari, or a physical phone.
+  Optional items not changed: future-dated carry wording, session cleanup, the Asked checkbox auto-submit, medicines table semantics.

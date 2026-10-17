@@ -1,0 +1,210 @@
+<%- include('partials/open') %>
+<%
+  const problemList = [];
+  Object.keys(visitErrors || {}).forEach(function (key) {
+    if (visitErrors[key]) problemList.push(visitErrors[key]);
+  });
+  if (errors.text) problemList.push(errors.text);
+  Object.keys(diaryErrors || {}).forEach(function (key) {
+    if (diaryErrors[key]) problemList.push(diaryErrors[key]);
+  });
+  if (takeawaysError) problemList.push(takeawaysError);
+  const showSummary = problemList.length > 0;
+  const visitErrorKeys = Object.keys(visitErrors || {}).filter(function (key) { return visitErrors[key]; });
+  const openVisitEdit = visitErrorKeys.length > 0 || focus === 'visit-details';
+%>
+<p class="kicker">Visit</p>
+<h1 id="title" tabindex="-1" <%= !showSummary && focus === 'title' ? 'autofocus' : '' %>><%= visit.title %></h1>
+<p class="meta">
+  <time datetime="<%= visit.visit_date %>"><%= visit.visit_date %></time>
+  <% if (visit.with_whom) { %> · <%= visit.with_whom %><% } %>
+</p>
+<p class="actions no-print">
+  <a class="button" href="/visits/<%= visit.id %>/brief">Make my brief</a>
+  <a class="button secondary" href="/visits/<%= visit.id %>/brief?text=large">Large-print brief</a>
+  <a class="button secondary" href="/visits/<%= visit.id %>/export.json">Download as JSON</a>
+  <a class="button danger" href="/visits/<%= visit.id %>/delete">Delete visit</a>
+</p>
+
+<details class="visit-edit no-print" <%= openVisitEdit ? 'open' : '' %>>
+  <summary id="visit-details" <%= !showSummary && focus === 'visit-details' ? 'autofocus' : '' %>>Edit visit details</summary>
+  <form method="post" action="/visits/<%= visit.id %>/details" class="stack">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <div class="field">
+      <label for="edit-title">Title</label>
+      <input id="edit-title" name="title" type="text" value="<%= visitValues.title %>" <%= visitErrors.title ? 'aria-invalid="true" aria-describedby="edit-title-error"' : '' %>>
+      <% if (visitErrors.title) { %><p class="field-error" id="edit-title-error"><%= visitErrors.title %></p><% } %>
+    </div>
+    <div class="field">
+      <label for="edit-date">Date</label>
+      <input id="edit-date" name="visit_date" type="text" inputmode="numeric" placeholder="YYYY-MM-DD" value="<%= visitValues.visit_date %>" <%= visitErrors.visit_date ? 'aria-invalid="true" aria-describedby="edit-date-error"' : '' %>>
+      <% if (visitErrors.visit_date) { %><p class="field-error" id="edit-date-error"><%= visitErrors.visit_date %></p><% } %>
+    </div>
+    <div class="field">
+      <label for="edit-with">With whom</label>
+      <input id="edit-with" name="with_whom" type="text" value="<%= visitValues.with_whom %>" <%= visitErrors.with_whom ? 'aria-invalid="true" aria-describedby="edit-with-error"' : '' %>>
+      <% if (visitErrors.with_whom) { %><p class="field-error" id="edit-with-error"><%= visitErrors.with_whom %></p><% } %>
+    </div>
+    <button type="submit">Save visit details</button>
+  </form>
+</details>
+
+<% if (saved && !showSummary) { %>
+  <p id="saved" class="status" role="status" tabindex="-1" <%= focus === 'saved' ? 'autofocus' : '' %>>Saved.</p>
+<% } %>
+<% if (showSummary) { %>
+  <div class="error-summary" role="alert" id="error-summary" tabindex="-1" autofocus>
+    <p>Please fix the following:</p>
+    <ul>
+      <% problemList.forEach(function (item) { %><li><%= item %></li><% }) %>
+    </ul>
+  </div>
+<% } %>
+
+<section class="access-card" aria-labelledby="access-heading">
+  <h2 id="access-heading">How to communicate with me</h2>
+  <% if (user.needs.length) { %>
+    <ul>
+      <% user.needs.forEach(function (id) { %>
+        <% const item = accessNeeds.find(function (need) { return need.id === id; }); %>
+        <% if (item) { %><li><%= item.label %></li><% } %>
+      <% }) %>
+    </ul>
+  <% } else { %>
+    <p>No communication needs selected.</p>
+  <% } %>
+  <% if (user.access_note) { %><p><%= user.access_note %></p><% } %>
+  <% if (user.helper_name) { %><p>Person helping: <%= user.helper_name %></p><% } %>
+  <p><a href="/about-me">Edit on About me</a></p>
+</section>
+
+<section aria-labelledby="questions">
+  <h2 id="questions" tabindex="-1" <%= !showSummary && focus === 'questions' ? 'autofocus' : '' %>>Questions</h2>
+  <p>The first three are the ones to ask if time is short. Move a question with Up or Down.</p>
+  <% if (!questions.length) { %>
+    <p>No questions yet. Add one below, or use a starter question.</p>
+  <% } else { %>
+    <h3>If we only have time for three</h3>
+    <ol class="questions">
+      <% top.forEach(function (q) { %>
+        <%- include('partials/question', { q: q }) %>
+      <% }) %>
+    </ol>
+    <h3 id="if-there-is-time">If there is time</h3>
+    <% if (!rest.length) { %>
+      <p>No other questions.</p>
+    <% } else { %>
+      <ol class="questions" start="<%= top.length + 1 %>">
+        <% rest.forEach(function (q) { %>
+          <%- include('partials/question', { q: q }) %>
+        <% }) %>
+      </ol>
+    <% } %>
+  <% } %>
+
+  <form method="post" action="/visits/<%= visit.id %>/questions" class="stack">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <div class="field">
+      <label for="question-text">Add a question</label>
+      <input id="question-text" name="text" type="text" value="<%= questionValue %>" <%= errors.text ? 'aria-invalid="true" aria-describedby="question-text-error"' : '' %>>
+      <% if (errors.text) { %><p class="field-error" id="question-text-error"><%= errors.text %></p><% } %>
+    </div>
+    <button type="submit">Add question</button>
+  </form>
+
+  <% if (starters.length) { %>
+    <div class="starters">
+      <h3>Starter questions</h3>
+      <ul>
+        <% starters.forEach(function (text) { %>
+          <li>
+            <form method="post" action="/visits/<%= visit.id %>/questions" class="inline-form choice-row">
+              <input type="hidden" name="_csrf" value="<%= csrf %>">
+              <input type="hidden" name="text" value="<%= text %>">
+              <span><%= text %></span>
+              <button type="submit">Add</button>
+            </form>
+          </li>
+        <% }) %>
+      </ul>
+    </div>
+  <% } %>
+
+  <% if (carry.length) { %>
+    <div class="carry">
+      <h3><%= previous.visit_date < today ? 'Not asked last time' : 'Not asked at the earlier visit' %></h3>
+      <p>From <%= previous.title %> (<%= previous.visit_date %>). These were not marked asked.</p>
+      <ul>
+        <% carry.forEach(function (q) { %>
+          <li>
+            <form method="post" action="/visits/<%= visit.id %>/carry" class="inline-form choice-row">
+              <input type="hidden" name="_csrf" value="<%= csrf %>">
+              <input type="hidden" name="source_question_id" value="<%= q.id %>">
+              <span><%= q.text %></span>
+              <button type="submit">Add to this visit</button>
+            </form>
+          </li>
+        <% }) %>
+      </ul>
+    </div>
+  <% } %>
+</section>
+
+<section aria-labelledby="diary">
+  <h2 id="diary" tabindex="-1" <%= !showSummary && focus === 'diary' ? 'autofocus' : '' %>>Notes since last time</h2>
+  <% if (!diary.length) { %>
+    <p>No notes yet.</p>
+  <% } else { %>
+    <ul class="diary-list">
+      <% diary.forEach(function (entry) { %>
+        <li>
+          <article>
+            <p><time datetime="<%= entry.entry_date %>"><%= entry.entry_date %></time></p>
+            <p><%= entry.text %></p>
+            <p>Bothers me: <%= entry.bother %> / 10</p>
+            <form method="post" action="/diary/<%= entry.id %>/delete">
+              <input type="hidden" name="_csrf" value="<%= csrf %>">
+              <button type="submit" class="secondary">Delete</button>
+            </form>
+          </article>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
+
+  <form method="post" action="/visits/<%= visit.id %>/diary" class="stack">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <div class="field">
+      <label for="diary-date">Date</label>
+      <input id="diary-date" name="entry_date" type="text" inputmode="numeric" placeholder="YYYY-MM-DD" value="<%= diaryValues.entry_date %>" <%= diaryErrors.entry_date ? 'aria-invalid="true" aria-describedby="diary-date-error"' : '' %>>
+      <% if (diaryErrors.entry_date) { %><p class="field-error" id="diary-date-error"><%= diaryErrors.entry_date %></p><% } %>
+    </div>
+    <div class="field">
+      <label for="diary-text">My words</label>
+      <textarea id="diary-text" name="text" rows="4" <%= diaryErrors.text ? 'aria-invalid="true" aria-describedby="diary-text-error"' : '' %>><%= diaryValues.text %></textarea>
+      <% if (diaryErrors.text) { %><p class="field-error" id="diary-text-error"><%= diaryErrors.text %></p><% } %>
+    </div>
+    <div class="field">
+      <label for="bother">How much it bothers me</label>
+      <% const botherShown = /^(?:10|[0-9])$/.test(String(diaryValues.bother)) ? diaryValues.bother : '0'; %>
+      <input id="bother" name="bother" type="range" min="0" max="10" step="1" value="<%= botherShown %>" <%= diaryErrors.bother ? 'aria-invalid="true" aria-describedby="bother-error bother-readout"' : 'aria-describedby="bother-readout"' %>>
+      <p id="bother-readout" class="readout">Bothers me: <span id="bother-value"><%= botherShown %></span> / 10</p>
+      <% if (diaryErrors.bother) { %><p class="field-error" id="bother-error"><%= diaryErrors.bother %></p><% } %>
+    </div>
+    <button type="submit">Add note</button>
+  </form>
+</section>
+
+<section aria-labelledby="takeaways">
+  <h2 id="takeaways" tabindex="-1" <%= !showSummary && focus === 'takeaways' ? 'autofocus' : '' %>>Takeaways in my own words</h2>
+  <form method="post" action="/visits/<%= visit.id %>/takeaways" class="stack">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <div class="field">
+      <label for="takeaways-text">After the visit</label>
+      <textarea id="takeaways-text" name="takeaways" rows="5" <%= takeawaysError ? 'aria-invalid="true" aria-describedby="takeaways-error"' : '' %>><%= takeawaysValue %></textarea>
+      <% if (takeawaysError) { %><p class="field-error" id="takeaways-error"><%= takeawaysError %></p><% } %>
+    </div>
+    <button type="submit">Save</button>
+  </form>
+</section>
+<%- include('partials/close') %>

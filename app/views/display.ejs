@@ -1,0 +1,19 @@
+<%- include('partials/open') %>
+<h1>Display</h1>
+<p class="lede">These choices are saved in a cookie on this browser. They work before you log in, including on the login page.</p>
+<% if (saved) { %>
+  <p id="saved" class="status" role="status" tabindex="-1" autofocus>Saved.</p>
+<% } %>
+<form method="post" action="/display" class="stack">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <div class="field check">
+    <input id="large_text" name="large_text" type="checkbox" value="1" <%= display.large ? 'checked' : '' %>>
+    <label for="large_text">Large text</label>
+  </div>
+  <div class="field check">
+    <input id="high_contrast" name="high_contrast" type="checkbox" value="1" <%= display.contrast ? 'checked' : '' %>>
+    <label for="high_contrast">High contrast</label>
+  </div>
+  <button type="submit">Save</button>
+</form>
+<%- include('partials/close') %>

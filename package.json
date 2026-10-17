@@ -1,0 +1,15 @@
+{
+  "name": "visit-sheet-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Deploy scaffolding for VisitSheet rc6 (exact product snapshot; see COMMIT.txt).",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "install:app": "npm ci --prefix app",
+    "seed": "npm run seed --prefix app",
+    "start": "npm start --prefix app",
+    "postinstall": "npm ci --prefix app && npm run seed --prefix app"
+  }
+}

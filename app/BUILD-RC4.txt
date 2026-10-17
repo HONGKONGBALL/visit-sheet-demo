@@ -1,0 +1,57 @@
+VisitSheet — BUILD RC4
+Date: 2026-10-11
+Branch: rc3-work
+Parent rc3: b807fc514795b52b52715879e8e85699bb219327
+Product commit and tag: see the "Git" section. The annotated tag rc4 points at the final commit. That commit records SOURCE.txt and does not change public/css/app.css or scripts/verify.py.
+
+No push. No new git remote. No Devpost submit. The demo video was not re-recorded.
+
+Start:
+  npm install && npm run seed && npm start
+  Node.js 22 LTS or newer. Optional PORT (default 3000).
+  Evidence server (Node v22.23.3, temporary database, not the repo database):
+    DB_PATH=/tmp/vs-rc4/visitsheet.db PORT=3788 /tmp/node22/node_modules/node/bin/node server.js
+  Port used for evidence: 3788 (http://127.0.0.1:3788)
+  Login: demo@visitsheet.example / demo-pass-48, or press "Fill in the demo login".
+
+What this round changed, on top of rc3:
+  Large-text CSS in public/css/app.css. Visible text with vs_display=large stays at least 22px. Heading links keep the heading size. Medicine titles (h3.med-line) stay on the heading scale. When large-print and large-text are both on, the brief header is at least 22px. Print !important sizes were not changed.
+  scripts/verify.py, adapted from /tmp/vs-demo/verify.py, keeps the rc3 checks and adds the font scan. VISITSHEET_BASE defaults to http://127.0.0.1:3788. VISITSHEET_EVIDENCE defaults to /workspace/visit-sheet-rc3/review/rc4/evidence.
+  Screenshots 01 and 08 were reshot after that CSS. 02–07 were not regenerated.
+  Docs name /workspace/demo/visit-sheet-demo-v4.mp4 as the delivery video.
+
+Acceptance:
+  A1 PASS. Large-text floor. review/rc4/evidence/results.json and verify-stdout.txt. Min font on every walked page at 320, 390, and 1440 is 22px (a.skip). Login .mono is included; the scan would fail if it were 14px or 15.2px.
+  A2 PASS. h2 and h3, and the links inside them, are strictly above 22px. Dashboard title links: h2 28px, h3 24px. Medicines h3.med-line: 24px. Large-print brief: h2 32px, h3 26px. Same results file.
+  A3 PASS. Large-print brief with the large-text cookie: header included in the 22px floor, overflow 0 at 320, 390, and 1440. Large-print without large text still uses the 18px header rule.
+  A4 PASS. review/rc4/evidence/pdfinfo.txt. Letter normal 1, A4 normal 1, Letter large-print 2, A4 large-print 2. pdftotext of normal-letter.pdf contains the disclaimer and does not contain "Log out".
+  A5 PASS. scripts/verify.py. Cookie vs_display=large (Playwright context cookie, Path=/) before navigation. 13 pages at 320, 390, and 1440, plus the previous health, 404, 413, 415, widths, judge path, keyboard Tab/Enter/Space, carry, diary, xss literal, empty forms, about me, display after logout, print font comparison, cross-sandbox 404, and PDF generation. TOTAL 120 FAIL 0. Exit 0. review/rc4/evidence/verify-stdout.txt and results.json.
+  A6 PASS. docs/screenshots/01-login.png is the login page at width 1440, full page, large text already on, demo email and password visible in the demo box. docs/screenshots/08-high-contrast.png is large text and high contrast on the dashboard, cropped above "New visit". Copies: review/rc4/evidence/screenshots/.
+  A7 PASS. docs/devpost.md Demo video section and this file name the v4 delivery video and the measured facts below. v2 is mentioned only as the older picture-identical file.
+  A8 PASS. docs/devpost.md and this file note that timestamps about 134–149 s still show the pre-fix large-text sizes. Correction (rc6): the corrected current interval is about 127–149 s.
+  A9 PASS. review/rc4/evidence/npm-test.txt. /tmp/node22/node_modules/node/bin/node --test tests/qa.test.js. Node v22.23.3. # tests 1, # pass 1, # fail 0.
+  A10 PASS. results.json, verify-stdout.txt, npm-test.txt, pdfinfo.txt, and screenshots 01 and 08 are newer than public/css/app.css (2026-10-11 01:57:26 +0800) and scripts/verify.py (2026-10-11 02:00:14 +0800).
+  A11 PASS. This file.
+  A12 PASS. Local commit on rc3-work. Annotated tag rc4 on the final commit. No push. No git remote add. No Devpost action. Worktree clean after the tag.
+  A13 PASS. review/rc4/ has REQUIREMENTS.md, SOURCE.txt, diff-from-rc3.patch, START.md, ACCEPTANCE-TABLE.md, KNOWN-ISSUES.md, and evidence/.
+
+Demo video (measured 2026-10-11, before these words were written):
+  path: /workspace/demo/visit-sheet-demo-v4.mp4
+  sha256: 33dada6c472fe69d7a6d363407e513e3239d6042ebc4af7ae02548d529e5e5be
+  duration: 157.954362 s (about 157.95 s, about 2:38)
+  video: 1920×1080 H.264, 30 fps
+  video stream bit-identical to visit-sheet-demo-v2.mp4
+  video-stream sha256 (ffmpeg -map 0:v:0 -c copy -f h264, then sha256): 910a8fb974a30c9080e5dc7c5fa92b1418c26cb233001b993467154aabf41b93
+  audio: AAC LC, stereo, 48 kHz, 136329 bps (about 136 kbps)
+  TTS: DashScope / Bailian, model qwen3-tts-flash, voice Cherry
+  The file has not been uploaded. The YouTube field is empty.
+  Timestamps about 134–149 s still show the pre-fix large-text font sizes, because this round did not re-record the video. Correction (rc6): the corrected current interval is about 127–149 s.
+  v2 is the older picture file. It is not the delivery file.
+
+Git:
+  Product commit: d865e2603606988c289ec8936b427752543b25e7
+  Message: Candidate rc4: large-text font floor, font scan, demo v4 docs
+  The annotated tag rc4 points at the following commit, which only records review/rc4/SOURCE.txt, review/rc4/diff-from-rc3.patch, and this Git paragraph. It does not change public/css/app.css or scripts/verify.py.
+  No push. No git remote. Worktree is clean after the tag.
+
+Statement: no push, no Devpost.

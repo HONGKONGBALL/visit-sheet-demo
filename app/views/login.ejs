@@ -1,0 +1,46 @@
+<%- include('partials/open') %>
+<h1>Log in</h1>
+<p class="lede">Each login gets a fresh, private copy of the fictional sample data.</p>
+
+<% if (errors.form || errors.email || errors.password) { %>
+  <div class="error-summary" role="alert" id="error-summary" tabindex="-1" autofocus>
+    <p>Please fix the following:</p>
+    <ul>
+      <% if (errors.form) { %><li><%= errors.form %></li><% } %>
+      <% if (errors.email) { %><li><%= errors.email %></li><% } %>
+      <% if (errors.password) { %><li><%= errors.password %></li><% } %>
+    </ul>
+  </div>
+<% } %>
+
+<form method="post" action="/login" class="stack">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <div class="field">
+    <label for="email">Email</label>
+    <input id="email" name="email" type="email" autocomplete="username" value="<%= values.email %>" <%= errors.email ? 'aria-invalid="true" aria-describedby="email-error"' : '' %>>
+    <% if (errors.email) { %><p class="field-error" id="email-error"><%= errors.email %></p><% } %>
+  </div>
+  <div class="field">
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" autocomplete="current-password" value="<%= values.password %>" <%= errors.password ? 'aria-invalid="true" aria-describedby="password-error"' : '' %>>
+    <% if (errors.password) { %><p class="field-error" id="password-error"><%= errors.password %></p><% } %>
+  </div>
+  <button type="submit">Log in</button>
+</form>
+
+<section class="demo-box" aria-labelledby="demo-heading">
+  <h2 id="demo-heading">Demo account (fictional)</h2>
+  <p>Use this account to try the sample. Each login gets a private copy.</p>
+  <ul class="demo-list">
+    <% demoAccounts.forEach(function (account) { %>
+      <li>
+        <strong><%= account.display_name %></strong><br>
+        Email <span class="mono"><%= account.email %></span><br>
+        Password <span class="mono"><%= account.password %></span>
+      </li>
+    <% }) %>
+  </ul>
+  <p><a class="button" href="/login?fill=1">Fill in the demo login</a></p>
+  <p><a href="/display">Display</a> choices (large text, high contrast) work on this page too.</p>
+</section>
+<%- include('partials/close') %>

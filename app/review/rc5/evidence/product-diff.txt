@@ -1,0 +1,2 @@
+git diff --exit-code rc4..rc5 -- src views public server.js package.json package-lock.json
+exit status: 0

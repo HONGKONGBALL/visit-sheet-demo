@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: visit-sheet-demo
+    runtime: docker
+    plan: free
+    healthCheckPath: /login
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SESSION_SECRET
+        generateValue: true

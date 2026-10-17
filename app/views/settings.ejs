@@ -1,0 +1,31 @@
+<%- include('partials/open') %>
+<h1>Settings</h1>
+<p class="lede">Large text and high contrast are stored in a cookie, so they stay on after you log out. <a href="/display">Display</a> is the same control and works before login. <a href="/about-me">About me</a> holds your name, helper, and communication needs.</p>
+<% if (saved) { %>
+  <p id="saved" class="status" role="status" tabindex="-1" autofocus>Saved.</p>
+<% } %>
+<form method="post" action="/settings" class="stack">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <fieldset>
+    <legend>Display</legend>
+    <div class="field check">
+      <input id="large_text" name="large_text" type="checkbox" value="1" <%= display.large ? 'checked' : '' %>>
+      <label for="large_text">Large text</label>
+    </div>
+    <div class="field check">
+      <input id="high_contrast" name="high_contrast" type="checkbox" value="1" <%= display.contrast ? 'checked' : '' %>>
+      <label for="high_contrast">High contrast</label>
+    </div>
+  </fieldset>
+  <button type="submit">Save</button>
+</form>
+<section class="stack" aria-labelledby="reset-heading">
+  <h2 id="reset-heading">Demo data</h2>
+  <p>Reset puts this login’s fictional sample data back. It does not change any other login.</p>
+  <p><a class="button danger" href="/demo/reset">Reset demo data</a></p>
+</section>
+<form method="post" action="/logout">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <button type="submit">Log out</button>
+</form>
+<%- include('partials/close') %>

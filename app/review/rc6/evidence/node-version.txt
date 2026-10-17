@@ -1,0 +1,14 @@
+command: /tmp/node22/node_modules/node/bin/node --version
+v22.23.3
+
+command -v node: /tmp/node22/node_modules/node/bin/node
+command: node --version
+v22.23.3
+
+system node (not used for tests):
+v20.19.2
+
+date:
+Sun Oct 11 19:01:02 PDT 2026
+date -I:
+2026-10-11

@@ -1,0 +1,47 @@
+node --version:
+v22.23.3
+
+date label: 2026-11-24
+
+host date:
+Sun Oct 11 19:01:06 PDT 2026
+
+host date -I:
+2026-10-11
+
+observed date command: /tmp/bin/faketime '2026-11-24 12:00:00' date
+observed date:
+Tue Nov 24 12:00:00 PST 2026
+
+observed date -I command: /tmp/bin/faketime '2026-11-24 12:00:00' date -I
+observed date -I:
+2026-11-24
+
+command:
+/tmp/bin/faketime '2026-11-24 12:00:00' /tmp/node22/node_modules/node/bin/node --test tests/qa.test.js
+
+exit code: 0
+
+----- untrimmed test output (stdout and stderr) -----
+(node:1310046) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+TAP version 13
+# (node:1310052) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Request rejected 415 charset.unsupported
+# Request rejected 413 entity.too.large
+# Subtest: QA cases for the merged VisitSheet spec
+ok 1 - QA cases for the merged VisitSheet spec
+  ---
+  duration_ms: 0
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 0

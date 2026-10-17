@@ -1,0 +1,44 @@
+<%- include('partials/open') %>
+<h1>About me</h1>
+<p class="lede">This is how the brief names you and how you want the clinic to communicate. It is your wording, not a medical record.</p>
+<% if (saved && !Object.keys(errors).length) { %>
+  <p id="saved" class="status" role="status" tabindex="-1" autofocus>Saved.</p>
+<% } %>
+<% const profileProblems = Object.keys(errors).filter(function (key) { return errors[key]; }); %>
+<% if (profileProblems.length) { %>
+  <div class="error-summary" role="alert" id="error-summary" tabindex="-1" autofocus>
+    <p>Please fix the following:</p>
+    <ul>
+      <% profileProblems.forEach(function (key) { %><li><%= errors[key] %></li><% }) %>
+    </ul>
+  </div>
+<% } %>
+<form method="post" action="/about-me" class="stack">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <div class="field">
+    <label for="display_name">Your name</label>
+    <input id="display_name" name="display_name" type="text" value="<%= values.display_name %>" <%= errors.display_name ? 'aria-invalid="true" aria-describedby="display-name-error"' : '' %>>
+    <% if (errors.display_name) { %><p class="field-error" id="display-name-error"><%= errors.display_name %></p><% } %>
+  </div>
+  <div class="field">
+    <label for="helper_name">Person helping me</label>
+    <input id="helper_name" name="helper_name" type="text" value="<%= values.helper_name %>" <%= errors.helper_name ? 'aria-invalid="true" aria-describedby="helper-name-error"' : '' %>>
+    <% if (errors.helper_name) { %><p class="field-error" id="helper-name-error"><%= errors.helper_name %></p><% } %>
+  </div>
+  <fieldset>
+    <legend>How to communicate with me</legend>
+    <% accessNeeds.forEach(function (need) { %>
+      <div class="field check">
+        <input id="need-<%= need.id %>" type="checkbox" name="needs" value="<%= need.id %>" <%= values.needs.indexOf(need.id) !== -1 ? 'checked' : '' %>>
+        <label for="need-<%= need.id %>"><%= need.label %></label>
+      </div>
+    <% }) %>
+  </fieldset>
+  <div class="field">
+    <label for="access_note">Short note</label>
+    <textarea id="access_note" name="access_note" rows="3" <%= errors.access_note ? 'aria-invalid="true" aria-describedby="access-note-error"' : '' %>><%= values.access_note %></textarea>
+    <% if (errors.access_note) { %><p class="field-error" id="access-note-error"><%= errors.access_note %></p><% } %>
+  </div>
+  <button type="submit">Save</button>
+</form>
+<%- include('partials/close') %>

@@ -1,0 +1,8 @@
+# rc4 source
+
+branch: rc3-work
+rc3 parent: b807fc514795b52b52715879e8e85699bb219327
+product commit: d865e2603606988c289ec8936b427752543b25e7
+product message: Candidate rc4: large-text font floor, font scan, demo v4 docs
+
+The annotated tag rc4 points at the commit that records this file (the child of the product commit). That commit does not change public/css/app.css or scripts/verify.py. diff-from-rc3.patch is the diff from rc3 through this source record. Confirm the tag with `git rev-parse rc4^{}` and `git rev-parse HEAD`.

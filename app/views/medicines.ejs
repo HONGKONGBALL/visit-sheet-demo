@@ -1,0 +1,83 @@
+<%- include('partials/open') %>
+<h1>Medicines</h1>
+<p class="lede">Type each medicine the way you say it. VisitSheet only stores your words. It does not check them.</p>
+<% if (saved && !editId && !errors.name && !errors.dose_text && !errors.when_text) { %>
+  <p id="saved" class="status" role="status" tabindex="-1" autofocus>Saved.</p>
+<% } %>
+
+<section aria-labelledby="list">
+  <h2 id="list" tabindex="-1" <%= focus === 'list' && !editId ? 'autofocus' : '' %>>My list</h2>
+  <% if (!medicines.length) { %>
+    <p>No medicines added yet.</p>
+  <% } else { %>
+    <ul class="med-list">
+      <% medicines.forEach(function (medicine) { %>
+        <% const editing = editId === medicine.id; %>
+        <% const rowName = editing ? editValues.name : medicine.name; %>
+        <% const rowDose = editing ? editValues.dose_text : medicine.dose_text; %>
+        <% const rowWhen = editing ? editValues.when_text : medicine.when_text; %>
+        <li>
+          <article class="med-card" id="med-<%= medicine.id %>" tabindex="-1" <%= focus === ('med-' + medicine.id) ? 'autofocus' : '' %>>
+            <h3 class="med-line"><%= rowName %> / <%= rowDose %> / <%= rowWhen %></h3>
+            <form method="post" action="/medicines/<%= medicine.id %>" class="med-edit">
+              <input type="hidden" name="_csrf" value="<%= csrf %>">
+              <div class="field">
+                <label for="name-<%= medicine.id %>">Name</label>
+                <input id="name-<%= medicine.id %>" name="name" type="text" value="<%= rowName %>" <%= editing && editErrors.name ? 'aria-invalid="true" aria-describedby="name-error-' + medicine.id + '"' : '' %>>
+                <% if (editing && editErrors.name) { %><p class="field-error" id="name-error-<%= medicine.id %>"><%= editErrors.name %></p><% } %>
+              </div>
+              <div class="field">
+                <label for="dose-<%= medicine.id %>">Dose</label>
+                <input id="dose-<%= medicine.id %>" name="dose_text" type="text" value="<%= rowDose %>" <%= editing && editErrors.dose_text ? 'aria-invalid="true" aria-describedby="dose-error-' + medicine.id + '"' : '' %>>
+                <% if (editing && editErrors.dose_text) { %><p class="field-error" id="dose-error-<%= medicine.id %>"><%= editErrors.dose_text %></p><% } %>
+              </div>
+              <div class="field">
+                <label for="when-<%= medicine.id %>">When</label>
+                <input id="when-<%= medicine.id %>" name="when_text" type="text" value="<%= rowWhen %>" <%= editing && editErrors.when_text ? 'aria-invalid="true" aria-describedby="when-error-' + medicine.id + '"' : '' %>>
+                <% if (editing && editErrors.when_text) { %><p class="field-error" id="when-error-<%= medicine.id %>"><%= editErrors.when_text %></p><% } %>
+              </div>
+              <button type="submit">Save</button>
+            </form>
+            <form method="post" action="/medicines/<%= medicine.id %>/delete">
+              <input type="hidden" name="_csrf" value="<%= csrf %>">
+              <button type="submit" class="secondary">Delete</button>
+            </form>
+          </article>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
+</section>
+
+<section aria-labelledby="add-med-heading">
+  <h2 id="add-med-heading">Add a medicine</h2>
+  <% const medProblems = Object.keys(errors).filter(function (key) { return errors[key]; }); %>
+  <% if (medProblems.length) { %>
+    <div class="error-summary" role="alert" id="error-summary" tabindex="-1" autofocus>
+      <p>Please fix the following:</p>
+      <ul>
+        <% medProblems.forEach(function (key) { %><li><%= errors[key] %></li><% }) %>
+      </ul>
+    </div>
+  <% } %>
+  <form method="post" action="/medicines" class="stack">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <div class="field">
+      <label for="med-name">Name</label>
+      <input id="med-name" name="name" type="text" value="<%= values.name %>" <%= errors.name ? 'aria-invalid="true" aria-describedby="med-name-error"' : '' %>>
+      <% if (errors.name) { %><p class="field-error" id="med-name-error"><%= errors.name %></p><% } %>
+    </div>
+    <div class="field">
+      <label for="med-dose">Dose</label>
+      <input id="med-dose" name="dose_text" type="text" value="<%= values.dose_text %>" <%= errors.dose_text ? 'aria-invalid="true" aria-describedby="med-dose-error"' : '' %>>
+      <% if (errors.dose_text) { %><p class="field-error" id="med-dose-error"><%= errors.dose_text %></p><% } %>
+    </div>
+    <div class="field">
+      <label for="med-when">When</label>
+      <input id="med-when" name="when_text" type="text" value="<%= values.when_text %>" <%= errors.when_text ? 'aria-invalid="true" aria-describedby="med-when-error"' : '' %>>
+      <% if (errors.when_text) { %><p class="field-error" id="med-when-error"><%= errors.when_text %></p><% } %>
+    </div>
+    <button type="submit">Add medicine</button>
+  </form>
+</section>
+<%- include('partials/close') %>

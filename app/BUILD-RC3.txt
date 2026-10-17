@@ -1,0 +1,114 @@
+Current delivery video is visit-sheet-demo-v4.mp4, documented in BUILD-RC4.txt. The v2 / silent lines below are the older rc3 record, not the delivery file. v2's picture matches v4. v2 is not the delivery file.
+
+VisitSheet — BUILD RC3
+Date: 2026-10-10
+Branch: rc3-work
+Base: 4726642 Candidate rc2
+Acceptance source: /workspace/pipeline/healthhack/idea.md
+prd.md and qa.md are the older spec. Where they conflict, this build follows idea.md (one fictional account, dates counted from the login day, private sandbox per login, Display works before login). Devpost was not submitted. The planned window is Oct 17–18, 2026.
+
+Start:
+  npm install && npm run seed && npm start
+  Node.js 22 LTS or newer. Optional PORT (default 3000). http://localhost:3000
+  Login: Robin Sample / demo@visitsheet.example / demo-pass-48
+  Or press "Fill in the demo login".
+
+What this round changed (working tree on top of rc2):
+  Atkinson Hyperlegible (SIL OFL, public/fonts, credited in README). Arial removed from the font stack.
+  Favicon at /favicon.png and /favicon.ico. Fonts served from /fonts.
+  Medicine list is a card list (name / dose / when), not a four-column table.
+  Brief tools are real buttons: Back to visit, Print, Large-print version, Download as JSON.
+  Question move controls say Up and Down, with the same aria-labels. Delete on questions and diary notes is a secondary button.
+  Large-print brief keeps the larger body and headings. The site header stays at 18px so Log out stays on one line.
+  Brief tables use a fixed layout and wrap long words, so 320px does not overflow.
+  Carry heading uses "Not asked last time" when the earlier visit is already in the past, and "Not asked at the earlier visit" when that visit is still in the future. Carry behavior is unchanged.
+  res.locals.today is set so that heading can compare dates.
+  README.md is English and matches the single demo account, relative dates, and run steps.
+  docs/devpost.md is paste-ready submission copy. It does not claim a public URL, a YouTube link, teammates, a school, or measured results. Pitch is 161 characters.
+  Screenshots: docs/screenshots/01-login.png through 08-high-contrast.png.
+  Demo video is outside the git repo: /workspace/demo/visit-sheet-demo-v2.mp4
+
+Error pages, keyboard access to Edit visit details, on-screen large print, Node 22, the single demo account, and the carry tests from rc2 are still in place.
+
+Node test (this continuation, after the files above):
+  /tmp/node22/node_modules/node/bin/node --test tests/qa.test.js
+  Node v22.23.3. 1 pass, 0 fail. Duration about 990 ms.
+  The test log includes "Request rejected 415 charset.unsupported" and "Request rejected 413 entity.too.large". Those are the expected rejections inside the test.
+  Carry checks inside that test, observed passing: source id present; POST appends and returns 302; a second add does not duplicate; an already-asked source returns 404; a source from another login returns 404.
+  This workspace's system Node is v20 and cannot load the local better-sqlite3 binary (NODE_MODULE_VERSION 127). npm test here can spawn that Node 20. A normal Node 22 install gets the matching prebuild. node_modules is gitignored.
+
+Browser evidence:
+  Chrome 154.0.8037.97, Playwright, server http://127.0.0.1:3788, DB_PATH=/tmp/vs-rc3/visitsheet.db (temporary, not the repo database).
+  /tmp/vs-audit3/results.json — 81 checks, 0 fail, written 2026-10-10 20:05. CSS mtime is 20:01, so this file is after the last product edit. No product file changed after that.
+  Widths 320, 1024, and 1440: overflow 0 on login, dashboard, visit, brief, large-print brief, and medicines. Login shows the demo email. Dashboard says hello and "in 7 days". Atkinson is the computed font. pageerror lists were empty.
+  320px with large text, high contrast, and large print together: overflow 0, h1 40px.
+  Keyboard at 1440: Tab from "Delete visit" lands on #visit-details. Enter opens it and the next Tab is #edit-title. Space does the same.
+  Empty login shows required messages. A bad password shows "Email or password is wrong."
+  Bad visit details (empty title, date 2026-13-40) stay on the form and keep the with-whom value.
+  Moving question 4 up places "How do I tell the clinic how I communicate?" inside the first three.
+  Carry offer is present. "Add to this visit" adds "Who do I call if the headache comes back on a weekend?"
+  A diary note saves. A question containing a script tag is shown as literal text.
+  Empty visit title: "Title is required." Empty medicine name: "Name is required." About me note saves.
+  After logout, with the display cookie still set, the login page has large-text and high-contrast and the h1 is "Log in".
+  A second login cannot open the first login's visit: 404, disclaimer present.
+  GET /no-such-page is 404 with "Page not found" and the disclaimer, and no stack or filesystem path.
+  An oversized urlencoded body is 413. charset=foo is 415. Both render "Something went wrong" with the disclaimer and no leak.
+  GET /health is {"ok":true}.
+  Print, fresh login, no display cookie, after emulate print: header display none. Normal h1 21.333px (16pt), disclaimer 14px (10.5pt). Large-print h1 29.333px (22pt), disclaimer 21.333px (16pt). Screen without the cookie: h1 32px versus 40px on the large-print page, disclaimer 15.2px versus 26px.
+  pdfinfo on /tmp/vs-audit3/fresh: letter.pdf 1 page, a4.pdf 1 page, letterL.pdf 2 pages, a4L.pdf 2 pages. pdftotext of letter.pdf contains the disclaimer. It does not contain "Log out" or "Dashboard".
+  1920×1080 rechecked in this continuation on the same server: overflow 0 on login (filled demo email), dashboard ("in 7 days", h1 "Hello, Robin Sample"), visit, brief, large-print brief (h1 40px, body class large-print), medicines, and display. The seven nav items share one top (62px); the brand sits above them. pageerror list was empty.
+
+Demo video (this continuation, after the ASS reburn):
+  /workspace/demo/visit-sheet-demo-v2.mp4
+  ffprobe: duration 157.954667 s (inside 2–4 minutes), h264, yuv420p, 1920×1080, 30 fps, aac stereo 48000 Hz.
+  sha256: 80888423d41b81ed1e897675e61499169ef8d9bc781531b9e2f33b854b388c44
+  Size: 3917949 bytes.
+  Playwright recorded the real UI at 1920×1080 with no browser chrome. Title card 7 s, end card 8 s, English subtitles burned into a 150px bar (ASS PlayRes 1920×1080, Atkinson Hyperlegible 34px). Silent audio.
+  Frames in /workspace/demo/visit-sheet-v2-frames/, read after this encode:
+    frame-01.jpg 2.00s title card, no subtitle, no chrome.
+    frame-02.jpg 17.12s login filled, subtitle inside the bar, demo card fully visible.
+    frame-03.jpg 23.53s dashboard, next visit in 7 days (2026-10-17), three visits visible. The bar covers the start of the New visit form.
+    frame-04.jpg 45.64s brief: access card and the top three are above the bar.
+    frame-05.jpg 73.48s large-print brief, larger title, top three visible, subtitle about print.
+    frame-06.jpg 136.11s logged-out high-contrast login, subtitle inside the bar, demo box visible.
+  Joins checked at 6.5s (title), 7.3s and 8.0s (login, subtitle starts just after 7.3s), 149.0s (still the logged-out page), 150.2s and 156.0s (end card, no leftover subtitle). No address bar and no terminal.
+
+Acceptance against idea.md (and the four items called out for this round):
+
+1. Error page does not crash and does not leak a stack or path.
+   Pass. Browser 404, 413, and 415 above. npm test covers the same 413 and 415 pages.
+
+2. Edit visit details is keyboard reachable.
+   Pass. Tab, Enter, and Space at 1440, recorded in results.json.
+
+3. Large print is larger on screen and in print.
+   Pass. Screen 32px versus 40px. Print 16pt versus 22pt. PDF page counts 1, 1, 2, 2. npm test asserts the screen large-print font-size rule outside @media print.
+
+4. Carry-over from the last visit has tests.
+   Pass. The five carry checks in tests/qa.test.js passed on Node 22. The browser walk also added the unasked weekend-headache question.
+
+5. Judge path: Fill in the demo login, dashboard next visit in 7 days, Make my brief (access card, top three, notes, medicines, print), move a question up, Add to this visit, Display large text and high contrast, including after logout.
+   Pass in the 81-check walk and in the demo video. Print was measured with Playwright page.pdf after emulating print, not only by clicking Print (that button calls the browser print dialog).
+
+6. One fictional demo account, private sandbox, dates from the login day.
+   Pass. Observed on 2026-10-10: next visit 2026-10-17 (in 7 days), past visit 2026-09-10, follow-up 2026-11-04. Cross-sandbox GET is 404.
+
+7. No diagnosis or medical-advice claim. Disclaimer on the pages and in the PDF.
+   Pass for the pages walked and for letter.pdf. The product sentence in README and on the end card says the app does not diagnose, check medicines, interpret the bother number, or suggest treatment.
+
+8. English product docs, no paid API, Node.js 22.
+   Pass for README and docs/devpost.md. The app starts with no API key. npm test passed on Node v22.23.3.
+
+9. Layout at 320, 1024, and 1440, and a presentable 1920 recording.
+   Pass. Overflow 0 at those widths in results.json. Overflow 0 at 1920 in the recheck above. Screenshots were reviewed in the prior pass of this same day and were not regenerated after the last CSS edit only where the CSS predates them; 05 and 08 were reshot after the header and crop fixes.
+
+Known issues, left as they are:
+  No public deploy, no git push, no Devpost submission, no YouTube URL. The video is not inside the git repo.
+  Sessions use MemoryStore. They are lost when the process restarts. There is no idle TTL.
+  The Asked checkbox still auto-submits (data-autosubmit).
+  README documents PORT only. DB_PATH and SESSION_SECRET are optional and undocumented.
+  Print forces black text. High contrast does not change the printed page.
+  Checked in headless Chrome only. No screen reader, Firefox, Safari, or a physical phone.
+  qa.md still names Alex Example, a second password account, and fixed seed dates. The running app follows idea.md instead.
+  The subtitle bar covers the bottom 150px of the app during the demo. That is the caption track, not the product layout.
+  Chrome logs the document status for intentional 400, 401, 404, 413, and 415 responses. Those are not page errors. pageerror lists on the walked pages were empty.

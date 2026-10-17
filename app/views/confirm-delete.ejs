@@ -1,0 +1,9 @@
+<%- include('partials/open') %>
+<h1>Delete this visit?</h1>
+<p>This removes <strong><%= visit.title %></strong> (<%= visit.visit_date %>), including its questions, notes, and takeaways. Your medicine list stays.</p>
+<form method="post" action="/visits/<%= visit.id %>/delete" class="inline-form">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <button type="submit" class="danger">Delete visit</button>
+  <a class="button secondary" href="/visits/<%= visit.id %>">Cancel</a>
+</form>
+<%- include('partials/close') %>

@@ -1,0 +1,51 @@
+VisitSheet — BUILD RC5
+Date: 2026-10-12
+Branch: rc3-work
+Parent rc4: d28833329ecf9e351bbafff66986c979921c03a2
+Product commit and tag: see the "Git" section. The annotated tag rc5 points at the final commit. That commit records SOURCE.txt and the diff from rc4. It does not change tests/qa.test.js or any product file.
+
+No push. No new git remote. No Devpost submit. The demo video was not re-recorded.
+
+Start:
+  npm install && npm run seed && npm start
+  Node.js 22 LTS or newer. Optional PORT (default 3000).
+  Login: demo@visitsheet.example / demo-pass-48, or press "Fill in the demo login".
+  This round did not start the rc4 evidence server and did not run scripts/verify.py. Product files are unchanged versus rc4, so the rc4 browser, PDF, and screenshot evidence stays valid.
+
+What this round changed, on top of rc4:
+  Tests only. tests/qa.test.js now posts diary notes with entry_date shiftDays(-1). The new-note order check compares the body "Screen feels blurry late at night." with the D-5 seed body "Slept badly, felt tired all day." The Eye check create whose dashboard place is asserted between Check-up and Follow-up uses visit_date shiftDays(18). Invalid-form echoes that post 2026-10-30 still expect that literal. The invalid date 2026-13-40 is unchanged. Product paths are unchanged versus rc4.
+
+Tests (Node v22.23.3). System node is v20.19.2 and did not run these tests. PATH put /tmp/node22/node_modules/node/bin first. npm test is `node --test tests/qa.test.js`. Each log is under review/rc5/evidence/ and includes node --version, the date used, the command, the exit code, and the untrimmed test output. Each run exited 0 and the node:test summary contains `# fail 0`.
+  1. Real machine date, no faketime. date: Mon Oct 12 04:08:26 CST 2026. date -I: 2026-10-12. Command: npm test. review/rc5/evidence/npm-test-real-date.txt
+  2. Fake date 2026-10-13 12:00:00. Process date: Tue Oct 13 12:00:00 CST 2026. review/rc5/evidence/npm-test-2026-10-13.txt
+  3. Fake date 2026-10-14 12:00:00. Process date: Wed Oct 14 12:00:00 CST 2026. review/rc5/evidence/npm-test-2026-10-14.txt
+  4. Fake date 2026-10-24 12:00:00. Process date: Sat Oct 24 12:00:00 CST 2026. review/rc5/evidence/npm-test-2026-10-24.txt
+  5. Fake date 2026-11-20 12:00:00. Process date: Fri Nov 20 12:00:00 CST 2026. review/rc5/evidence/npm-test-2026-11-20.txt
+  Node version record: review/rc5/evidence/node-version.txt
+  faketime: this account cannot install packages into /usr. Debian packages faketime and libfaketime 0.9.10+2024-06-05+gba9ed5b2-0.6 were extracted under /tmp/faketime-root (outside the repo, not committed). /tmp/bin/faketime preloads that libfaketime and was the faketime command in the four fake-date logs. The host clock was not changed.
+
+Product diff versus rc4 for src, views, public, server.js, package.json, and package-lock.json is empty. See review/rc5/evidence/product-diff.txt.
+
+Demo video (facts copied from BUILD-RC4.txt; measured 2026-10-11. This round did not re-measure the file and did not rewrite the video):
+  path: /workspace/demo/visit-sheet-demo-v4.mp4
+  sha256: 33dada6c472fe69d7a6d363407e513e3239d6042ebc4af7ae02548d529e5e5be
+  duration: 157.954362 s (about 157.95 s, about 2:38)
+  video: 1920×1080 H.264, 30 fps
+  video stream bit-identical to visit-sheet-demo-v2.mp4
+  video-stream sha256 (ffmpeg -map 0:v:0 -c copy -f h264, then sha256): 910a8fb974a30c9080e5dc7c5fa92b1418c26cb233001b993467154aabf41b93
+  audio: AAC LC, stereo, 48 kHz, 136329 bps (about 136 kbps)
+  TTS: DashScope / Bailian, model qwen3-tts-flash, voice Cherry
+  The file has not been uploaded. The YouTube field is empty.
+  Timestamps about 127–149 s still show the pre-fix large-text font sizes, because this round did not re-record the video. The pre-fix large-text interval is about 127–149 s. At about 126 s the Display page shows Saved. At about 127 s and 128 s the dashboard is in large text. At about 134 s and 149 s the login page is on screen with those large-text choices still applied.
+  v2 is the older picture file. It is not the delivery file.
+
+Git:
+  Product commit: dcb7898d91f377d140955d36db9e2ad675f67dd6
+  Message: Candidate rc5: date-independent QA tests
+  Correction (rc6): that message is quoted as history. The suite was not fully date-independent. Inserted visit dates 2026-12-01 and 2026-12-15 stayed fixed calendar days until rc6.
+  The annotated tag rc5 points at the following commit, which only records review/rc5/SOURCE.txt, review/rc5/diff-from-rc4.patch, review/rc5/evidence/product-diff.txt, and this Git paragraph. It does not change tests/qa.test.js or any product file.
+  No push. No git remote. After the tag the worktree is clean except the untracked FIX-TASK-RC5.md, which this round did not edit, commit, or gitignore.
+
+Status: implementation and self-check done, awaiting acceptance.
+
+Statement: no push, no Devpost.

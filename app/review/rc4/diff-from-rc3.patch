@@ -1,0 +1,2765 @@
+diff --git a/ACCEPTANCE.md b/ACCEPTANCE.md
+new file mode 100644
+index 0000000..1c0f8ae
+--- /dev/null
++++ b/ACCEPTANCE.md
+@@ -0,0 +1,93 @@
++# VisitSheet rc4 acceptance contract
++
++Goal: ship a local candidate `rc4` on top of `rc3` (`b807fc514795b52b52715879e8e85699bb219327`) that restores the large-text floor and points the delivery records at the Bailian narrated demo. The product still follows `idea.md`. Where `prd.md` or `qa.md` disagree, `idea.md` wins (one fictional account, dates counted from the login day, a private sandbox per login, Display works before login).
++
++This round does not deploy, push, or submit.
++
++## Core flows that must still close
++
++1. Login with **Fill in the demo login** (`demo@visitsheet.example` / `demo-pass-48`) creates a private sandbox. The dashboard shows the next visit in 7 days.
++2. **Make my brief** shows the access card, the top-three box, notes, medicines, and the disclaimer. Print preview of the normal brief is one Letter page and one A4 page. The large-print brief is two Letter pages and two A4 pages.
++3. On the visit, **Up** moves a question into the top three. **Add to this visit** carries over an unasked question from the earlier visit.
++4. **Display** saves large text and high contrast in the `vs_display` cookie. The choice applies before login and remains after logout.
++5. Error paths still render the app error page with the disclaimer and no stack or filesystem path: empty login, wrong password, 404, 403, 413, 415.
++
++## Environment
++
++- Workspace: `/workspace/visit-sheet-rc3`
++- Node.js 22 LTS (`/tmp/node22/node_modules/node/bin/node`, v22.x). System Node 20 cannot load the local `better-sqlite3` binary.
++- Start: `npm install && npm run seed && npm start` (optional `PORT`, default 3000).
++- Browser evidence: headless Chrome via Playwright. No paid API.
++
++## Scope
++
++In scope:
++
++- Large-text CSS in `public/css/app.css` so visible text stays at least 22px and headings stay larger than body text.
++- A font-size and overflow scan in the committed verifier.
++- Reshoot screenshots `01` and `08` after that CSS fix.
++- Docs and BUILD records for `/workspace/demo/visit-sheet-demo-v4.mp4`.
++- Node 22 `npm test`, full verifier, PDF page counts, `BUILD-RC4.txt`, local commit and tag `rc4`, and `review/rc4/` evidence.
++
++Out of scope:
++
++- Re-recording the demo video.
++- Push, cloud deploy, Devpost submit, public GitHub URL.
++- Optional items from the rc3 review (future-visit carry, iOS dates, auto-submit Asked, duplicate button names, checkbox size, README env vars, wide layout, screen readers, other browsers).
++
++## Acceptance criteria
++
++A1. With the `vs_display=large` cookie, every visible text node on every walked page renders at 22px or larger. Exclude `.visually-hidden` and `.sr-only`. This includes the login demo email and password (`.mono`), including at a viewport of 480px or narrower, where `.mono` is currently forced to 14px.
++
++A2. In large-text mode, `h2` and `h3`, and the links inside them, render larger than body text (strictly greater than 22px). Medicine-card titles (`h3.med-line`) are included. Title links on the dashboard are included.
++
++A3. In large-text mode, the large-print brief header (brand, navigation, Log out) renders at 22px or larger. Wrapping is allowed. There is no horizontal overflow. Large-print without the large-text cookie may keep the 18px header.
++
++A4. Print output is unchanged: `pdfinfo` reports Letter and A4 normal brief = 1 page each, large-print = 2 pages each (1/1/2/2). The normal Letter PDF still contains the disclaimer and does not contain "Log out".
++
++A5. `scripts/verify.py` (adapted from `/tmp/vs-demo/verify.py`) sets `vs_display=large`, walks these 13 pages, and asserts A1–A3 plus no horizontal overflow at 320, 390, and 1440:
++
++1. `/login`
++2. `/about`
++3. `/display`
++4. `/dashboard`
++5. `/visits/<next visit id>`
++6. `/visits/<next>/brief`
++7. `/visits/<next>/brief?text=large`
++8. `/medicines`
++9. `/about-me`
++10. `/settings`
++11. `/visits/<next>/delete`
++12. `/demo/reset`
++13. `/no-such-page`
++
++The script also keeps the existing rc3 checks (health, 404, 413, 415, judge path, keyboard edit, carry, cross-sandbox, print sizes). Full run: 0 failures. Results record the minimum font size and the selector that produced it.
++
++A6. `docs/screenshots/01-login.png` and `docs/screenshots/08-high-contrast.png` are reshot after the CSS fix. `01` is the login page in large-text mode with the fictional demo credentials visible. `08` is large text plus high contrast (dashboard, same crop as before: above "New visit").
++
++A7. `docs/devpost.md` Demo video section and the BUILD records name `/workspace/demo/visit-sheet-demo-v4.mp4` as the delivery video, with measured facts:
++
++- sha256 `33dada6c472fe69d7a6d363407e513e3239d6042ebc4af7ae02548d529e5e5be`
++- duration about 157.95 s (about 2:38)
++- 1920×1080 H.264 at 30 fps
++- video stream bit-identical to v2; video-stream sha256 `910a8fb974a30c9080e5dc7c5fa92b1418c26cb233001b993467154aabf41b93`
++- audio AAC LC stereo 48 kHz, about 136 kbps
++- TTS: DashScope / Bailian, model `qwen3-tts-flash`, voice `Cherry`
++
++The repo must not tell a reader that the delivery demo is silent `visit-sheet-demo-v2.mp4`. v2 may be mentioned only as the older picture-identical file.
++
++A8. Because the video is not re-recorded, the docs and `BUILD-RC4.txt` state that timestamps about 134–149 s still show the pre-fix large-text sizes.
++
++A9. `npm test` is run with Node 22. Raw output is saved and shows a pass.
++
++A10. Evidence file mtimes (`review/rc4/evidence/` results, test log, pdfinfo, reshot screenshots) are later than the last product change (`public/css/app.css` and `scripts/verify.py`).
++
++A11. `BUILD-RC4.txt` records the start command, port, Node version, A1–A11 pass/fail with evidence paths, and the demo v4 sha256, duration, audio, and TTS facts.
++
++A12. Local commit on the worktree branch, annotated tag `rc4` on that commit, worktree clean. No git push, no new remote, no Devpost action.
++
++A13. `review/rc4/` contains the original requirements pointer, source hash, diff from rc3, start command, per-item acceptance table, run evidence, and known issues.
++
++## Known issues carried forward
++
++No public URL, no GitHub remote, MemoryStore sessions, Asked still auto-submits, README mentions only `PORT`, print is black text, checked in headless Chrome only, `qa.md` still names the older sample account, the demo subtitle bar covers the bottom 150px, and the v4 picture at about 134–149 s predates the large-text fix.
+diff --git a/BUILD-RC3.txt b/BUILD-RC3.txt
+index 1cfc597..78737e8 100644
+--- a/BUILD-RC3.txt
++++ b/BUILD-RC3.txt
+@@ -1,3 +1,5 @@
++Current delivery video is visit-sheet-demo-v4.mp4, documented in BUILD-RC4.txt. The v2 / silent lines below are the older rc3 record, not the delivery file. v2's picture matches v4. v2 is not the delivery file.
++
+ VisitSheet — BUILD RC3
+ Date: 2026-10-10
+ Branch: rc3-work
+diff --git a/BUILD-RC4.txt b/BUILD-RC4.txt
+new file mode 100644
+index 0000000..9361be8
+--- /dev/null
++++ b/BUILD-RC4.txt
+@@ -0,0 +1,57 @@
++VisitSheet — BUILD RC4
++Date: 2026-10-11
++Branch: rc3-work
++Parent rc3: b807fc514795b52b52715879e8e85699bb219327
++Product commit and tag: see the "Git" section. The annotated tag rc4 points at the final commit. That commit records SOURCE.txt and does not change public/css/app.css or scripts/verify.py.
++
++No push. No new git remote. No Devpost submit. The demo video was not re-recorded.
++
++Start:
++  npm install && npm run seed && npm start
++  Node.js 22 LTS or newer. Optional PORT (default 3000).
++  Evidence server (Node v22.23.3, temporary database, not the repo database):
++    DB_PATH=/tmp/vs-rc4/visitsheet.db PORT=3788 /tmp/node22/node_modules/node/bin/node server.js
++  Port used for evidence: 3788 (http://127.0.0.1:3788)
++  Login: demo@visitsheet.example / demo-pass-48, or press "Fill in the demo login".
++
++What this round changed, on top of rc3:
++  Large-text CSS in public/css/app.css. Visible text with vs_display=large stays at least 22px. Heading links keep the heading size. Medicine titles (h3.med-line) stay on the heading scale. When large-print and large-text are both on, the brief header is at least 22px. Print !important sizes were not changed.
++  scripts/verify.py, adapted from /tmp/vs-demo/verify.py, keeps the rc3 checks and adds the font scan. VISITSHEET_BASE defaults to http://127.0.0.1:3788. VISITSHEET_EVIDENCE defaults to /workspace/visit-sheet-rc3/review/rc4/evidence.
++  Screenshots 01 and 08 were reshot after that CSS. 02–07 were not regenerated.
++  Docs name /workspace/demo/visit-sheet-demo-v4.mp4 as the delivery video.
++
++Acceptance:
++  A1 PASS. Large-text floor. review/rc4/evidence/results.json and verify-stdout.txt. Min font on every walked page at 320, 390, and 1440 is 22px (a.skip). Login .mono is included; the scan would fail if it were 14px or 15.2px.
++  A2 PASS. h2 and h3, and the links inside them, are strictly above 22px. Dashboard title links: h2 28px, h3 24px. Medicines h3.med-line: 24px. Large-print brief: h2 32px, h3 26px. Same results file.
++  A3 PASS. Large-print brief with the large-text cookie: header included in the 22px floor, overflow 0 at 320, 390, and 1440. Large-print without large text still uses the 18px header rule.
++  A4 PASS. review/rc4/evidence/pdfinfo.txt. Letter normal 1, A4 normal 1, Letter large-print 2, A4 large-print 2. pdftotext of normal-letter.pdf contains the disclaimer and does not contain "Log out".
++  A5 PASS. scripts/verify.py. Cookie vs_display=large (Playwright context cookie, Path=/) before navigation. 13 pages at 320, 390, and 1440, plus the previous health, 404, 413, 415, widths, judge path, keyboard Tab/Enter/Space, carry, diary, xss literal, empty forms, about me, display after logout, print font comparison, cross-sandbox 404, and PDF generation. TOTAL 120 FAIL 0. Exit 0. review/rc4/evidence/verify-stdout.txt and results.json.
++  A6 PASS. docs/screenshots/01-login.png is the login page at width 1440, full page, large text already on, demo email and password visible in the demo box. docs/screenshots/08-high-contrast.png is large text and high contrast on the dashboard, cropped above "New visit". Copies: review/rc4/evidence/screenshots/.
++  A7 PASS. docs/devpost.md Demo video section and this file name the v4 delivery video and the measured facts below. v2 is mentioned only as the older picture-identical file.
++  A8 PASS. docs/devpost.md and this file note that timestamps about 134–149 s still show the pre-fix large-text sizes.
++  A9 PASS. review/rc4/evidence/npm-test.txt. /tmp/node22/node_modules/node/bin/node --test tests/qa.test.js. Node v22.23.3. # tests 1, # pass 1, # fail 0.
++  A10 PASS. results.json, verify-stdout.txt, npm-test.txt, pdfinfo.txt, and screenshots 01 and 08 are newer than public/css/app.css (2026-10-11 01:57:26 +0800) and scripts/verify.py (2026-10-11 02:00:14 +0800).
++  A11 PASS. This file.
++  A12 PASS. Local commit on rc3-work. Annotated tag rc4 on the final commit. No push. No git remote add. No Devpost action. Worktree clean after the tag.
++  A13 PASS. review/rc4/ has REQUIREMENTS.md, SOURCE.txt, diff-from-rc3.patch, START.md, ACCEPTANCE-TABLE.md, KNOWN-ISSUES.md, and evidence/.
++
++Demo video (measured 2026-10-11, before these words were written):
++  path: /workspace/demo/visit-sheet-demo-v4.mp4
++  sha256: 33dada6c472fe69d7a6d363407e513e3239d6042ebc4af7ae02548d529e5e5be
++  duration: 157.954362 s (about 157.95 s, about 2:38)
++  video: 1920×1080 H.264, 30 fps
++  video stream bit-identical to visit-sheet-demo-v2.mp4
++  video-stream sha256 (ffmpeg -map 0:v:0 -c copy -f h264, then sha256): 910a8fb974a30c9080e5dc7c5fa92b1418c26cb233001b993467154aabf41b93
++  audio: AAC LC, stereo, 48 kHz, 136329 bps (about 136 kbps)
++  TTS: DashScope / Bailian, model qwen3-tts-flash, voice Cherry
++  The file has not been uploaded. The YouTube field is empty.
++  Timestamps about 134–149 s still show the pre-fix large-text font sizes, because this round did not re-record the video.
++  v2 is the older picture file. It is not the delivery file.
++
++Git:
++  Product commit: d865e2603606988c289ec8936b427752543b25e7
++  Message: Candidate rc4: large-text font floor, font scan, demo v4 docs
++  The annotated tag rc4 points at the following commit, which only records review/rc4/SOURCE.txt, review/rc4/diff-from-rc3.patch, and this Git paragraph. It does not change public/css/app.css or scripts/verify.py.
++  No push. No git remote. Worktree is clean after the tag.
++
++Statement: no push, no Devpost.
+diff --git a/docs/devpost.md b/docs/devpost.md
+index bc56221..889cff0 100644
+--- a/docs/devpost.md
++++ b/docs/devpost.md
+@@ -61,7 +61,20 @@ Public GitHub URL: leave blank until this repo is actually pushed. Do not paste
+ 
+ ## Demo video
+ 
+-A local 1920×1080 walkthrough with English title cards and burned-in English subtitles is at `demo/visit-sheet-demo-v2.mp4` beside the project (not inside the git repo). It has not been uploaded. Leave the YouTube field empty until a real public link exists.
++The delivery video is `/workspace/demo/visit-sheet-demo-v4.mp4`. It sits beside the project and is not inside the git repo. It has not been uploaded. Leave the YouTube field empty.
++
++Measured on 2026-10-11:
++
++- sha256: `33dada6c472fe69d7a6d363407e513e3239d6042ebc4af7ae02548d529e5e5be`
++- duration: 157.954 s (about 2:38)
++- picture: 1920×1080 H.264 at 30 fps
++- video-stream sha256: `910a8fb974a30c9080e5dc7c5fa92b1418c26cb233001b993467154aabf41b93` (`ffmpeg -map 0:v:0 -c copy -f h264`, then sha256). That stream is bit-identical to the older picture file `visit-sheet-demo-v2.mp4`. v2 is not the delivery file.
++- audio: AAC LC, stereo, 48 kHz, 136329 bps (about 136 kbps)
++- narration: DashScope / Bailian, model `qwen3-tts-flash`, voice `Cherry`
++
++This round did not re-record the video. Timestamps about 134–149 s still show the pre-fix large-text font sizes.
++
++YouTube:
+ 
+ ## What it does not do
+ 
+@@ -74,7 +87,7 @@ A local 1920×1080 walkthrough with English title cards and burned-in English su
+ 
+ ## Screenshots to upload
+ 
+-1. `docs/screenshots/01-login.png` — fictional demo login
++1. `docs/screenshots/01-login.png` — login page in large text, with the fictional demo email and password visible
+ 2. `docs/screenshots/02-dashboard.png` — next visit, seven days ahead
+ 3. `docs/screenshots/03-visit.png` — access card and ranked questions
+ 4. `docs/screenshots/04-brief.png` — one-page brief
+diff --git a/docs/screenshots/01-login.png b/docs/screenshots/01-login.png
+index b36a714..889c4e3 100644
+Binary files a/docs/screenshots/01-login.png and b/docs/screenshots/01-login.png differ
+diff --git a/docs/screenshots/08-high-contrast.png b/docs/screenshots/08-high-contrast.png
+index 85ba579..c91fc64 100644
+Binary files a/docs/screenshots/08-high-contrast.png and b/docs/screenshots/08-high-contrast.png differ
+diff --git a/public/css/app.css b/public/css/app.css
+index a4817eb..c71e551 100644
+--- a/public/css/app.css
++++ b/public/css/app.css
+@@ -104,7 +104,8 @@ body.large-print h1 { font-size: 40px; }
+ body.large-print h2 { font-size: 32px; }
+ body.large-print h3 { font-size: 26px; }
+ 
+-/* The brief grows. The site header stays at the normal size so the nav does not wrap. */
++/* The brief grows. Without large text, the site header stays at 18px.
++   With large text as well, the rules below lift the header to the 22px floor. */
+ body.large-print .site-header,
+ body.large-print .site-header a,
+ body.large-print .site-header button {
+@@ -641,6 +642,35 @@ body.high-contrast .button.danger:hover {
+   .demo-box { padding-left: 0.75rem; padding-right: 0.75rem; }
+ }
+ 
++/* Large-text floor. Specificity beats .mono, .med-card .med-line, the
++   large-print header, and body.large-text a. Print !important sizes are unchanged. */
++body.large-text .mono {
++  font-size: 22px;
++}
++
++body.large-text .med-card .med-line,
++body.large-text h3.med-line {
++  font-size: 24px;
++}
++
++body.large-print.large-text .med-card .med-line,
++body.large-print.large-text h3.med-line {
++  font-size: 26px;
++}
++
++body.large-text h1 a,
++body.large-text h2 a,
++body.large-text h3 a {
++  font-size: inherit;
++}
++
++body.large-print.large-text .site-header,
++body.large-print.large-text .site-header a,
++body.large-print.large-text .site-header button,
++body.large-print.large-text .site-header .brand {
++  font-size: 22px;
++}
++
+ @page { margin: 0.4in; }
+ 
+ @media print {
+diff --git a/review/rc4/ACCEPTANCE-TABLE.md b/review/rc4/ACCEPTANCE-TABLE.md
+new file mode 100644
+index 0000000..7001e27
+--- /dev/null
++++ b/review/rc4/ACCEPTANCE-TABLE.md
+@@ -0,0 +1,17 @@
++# rc4 acceptance
++
++| Item | Status | Evidence |
++|---|---|---|
++| A1 | PASS | `review/rc4/evidence/results.json` font rows. Min computed size is 22px (`a.skip`) at 320, 390, and 1440, including `/login` where `.mono` is the demo email. `verify-stdout.txt` ends `TOTAL 120 FAIL 0`. |
++| A2 | PASS | Same results. Dashboard `h2` links are 28px and `h3` links are 24px. `h3.med-line` on `/medicines` is 24px. Large-print brief headings are 32px (`h2`) and 26px (`h3`). All strictly greater than 22. |
++| A3 | PASS | `/visits/<id>/brief?text=large` rows: body class `large-text large-print`, min 22px, overflow 0 at 320, 390, and 1440. Large-print without large text is unchanged in CSS (`body.large-print .site-header` stays 18px). |
++| A4 | PASS | `review/rc4/evidence/pdfinfo.txt`. Pages 1 / 1 / 2 / 2. Normal Letter text has the disclaimer and does not contain "Log out". |
++| A5 | PASS | `scripts/verify.py`. Cookie `vs_display=large` before navigation. 13 pages × 320, 390, 1440. Existing rc3 checks kept (120 total = 81 previous + 39 font). Exit 0. `verify-stdout.txt`, `results.json`. |
++| A6 | PASS | `docs/screenshots/01-login.png` (large text, demo box visible, width 1440, full page). `docs/screenshots/08-high-contrast.png` (large text and high contrast, dashboard cropped above "New visit"). Copies in `review/rc4/evidence/screenshots/`. Shot after `app.css`. |
++| A7 | PASS | `docs/devpost.md` Demo video section and `BUILD-RC4.txt`. Path `/workspace/demo/visit-sheet-demo-v4.mp4`, sha256 `33dada6c472fe69d7a6d363407e513e3239d6042ebc4af7ae02548d529e5e5be`. v2 is named only as the older picture-identical file. |
++| A8 | PASS | `docs/devpost.md` and `BUILD-RC4.txt` state that timestamps about 134–149 s still show the pre-fix large-text sizes. |
++| A9 | PASS | `review/rc4/evidence/npm-test.txt`. Node v22.23.3, `# pass 1`, `# fail 0`. |
++| A10 | PASS | Evidence mtimes for results, verify stdout, npm test, pdfinfo, and screenshots 01 and 08 are later than `public/css/app.css` (01:57:26 +0800) and `scripts/verify.py` (02:00:14 +0800) on 2026-10-11. |
++| A11 | PASS | `BUILD-RC4.txt` records the start command, port 3788, Node v22.23.3, A1–A13, and the demo v4 facts. |
++| A12 | PASS | Local commit on `rc3-work` and annotated tag `rc4` on the final commit. No push and no new remote. See `SOURCE.txt` and `BUILD-RC4.txt` for the two-commit note. |
++| A13 | PASS | This directory: `REQUIREMENTS.md`, `SOURCE.txt`, `diff-from-rc3.patch`, `START.md`, `ACCEPTANCE-TABLE.md`, `KNOWN-ISSUES.md`, and `evidence/`. |
+diff --git a/review/rc4/KNOWN-ISSUES.md b/review/rc4/KNOWN-ISSUES.md
+new file mode 100644
+index 0000000..4cf564c
+--- /dev/null
++++ b/review/rc4/KNOWN-ISSUES.md
+@@ -0,0 +1,16 @@
++# Known issues carried forward
++
++From ACCEPTANCE.md, still true for rc4:
++
++- No public URL.
++- No GitHub remote.
++- Sessions use MemoryStore (lost when the process restarts).
++- The Asked checkbox still auto-submits.
++- README mentions only `PORT`.
++- Print is black text.
++- Checked in headless Chrome only.
++- `qa.md` still names the older sample account.
++- The demo subtitle bar covers the bottom 150px.
++- The v4 picture at about 134–149 s predates the large-text fix. This round did not re-record `/workspace/demo/visit-sheet-demo-v4.mp4`, so those timestamps still show the pre-fix large-text font sizes.
++
++Optional rc3 polish (future-visit carry wording, iOS dates, duplicate button names, checkbox size, README env vars, wide layout, screen readers, other browsers) was left alone.
+diff --git a/review/rc4/REQUIREMENTS.md b/review/rc4/REQUIREMENTS.md
+new file mode 100644
+index 0000000..e3174a5
+--- /dev/null
++++ b/review/rc4/REQUIREMENTS.md
+@@ -0,0 +1,14 @@
++# Requirements for VisitSheet rc4
++
++The product description, from idea.md:
++
++> VisitSheet helps a patient, or the person helping them, turn scattered notes into a one-page appointment brief: the three questions that matter most at the top, notes since last time in their own words, the medicine list exactly as they typed it, and how the clinic should communicate with them.
++
++Sources, in order of authority for this build:
++
++- `/workspace/pipeline/healthhack/idea.md` — product source. It overrides `prd.md` and `qa.md` where they conflict (one fictional account, dates counted from the login day, a private sandbox per login, Display works before login).
++- `/workspace/pipeline/healthhack/prd.md` and `/workspace/pipeline/healthhack/qa.md` — older spec. Do not follow them when they disagree with idea.md.
++- `/workspace/pipeline/healthhack/brief.md` — HEALTHHACK 48 constraints (English product docs, fictional data, submit only inside the Oct 17–18, 2026 window).
++- `ACCEPTANCE.md` in this repo — the rc4 contract. It was not weakened or renumbered.
++
++This round does not deploy, push, or submit to Devpost.
+diff --git a/review/rc4/SOURCE.txt b/review/rc4/SOURCE.txt
+new file mode 100644
+index 0000000..681b460
+--- /dev/null
++++ b/review/rc4/SOURCE.txt
+@@ -0,0 +1,8 @@
++# rc4 source
++
++branch: rc3-work
++rc3 parent: b807fc514795b52b52715879e8e85699bb219327
++product commit: d865e2603606988c289ec8936b427752543b25e7
++product message: Candidate rc4: large-text font floor, font scan, demo v4 docs
++
++The annotated tag rc4 points at the commit that records this file (the child of the product commit). That commit does not change public/css/app.css or scripts/verify.py. diff-from-rc3.patch is the diff from rc3 through this source record. Confirm the tag with `git rev-parse rc4^{}` and `git rev-parse HEAD`.
+diff --git a/review/rc4/START.md b/review/rc4/START.md
+new file mode 100644
+index 0000000..dca124f
+--- /dev/null
++++ b/review/rc4/START.md
+@@ -0,0 +1,33 @@
++# Start
++
++Project start (Node.js 22 LTS or newer):
++
++```bash
++npm install
++npm run seed
++npm start
++```
++
++Optional `PORT` (default 3000). Login: `demo@visitsheet.example` / `demo-pass-48`, or press **Fill in the demo login**.
++
++Evidence server for rc4, started with Node v22.23.3 because the system `node` is v20 and cannot load the local `better-sqlite3` binary. The database is temporary and is not the repo database.
++
++```bash
++DB_PATH=/tmp/vs-rc4/visitsheet.db PORT=3788 /tmp/node22/node_modules/node/bin/node server.js
++```
++
++Port used for evidence: **3788** (`http://127.0.0.1:3788`).
++
++Verifier (defaults match that server and this evidence directory):
++
++```bash
++/tmp/hrl-review/tools/bin/python3 scripts/verify.py
++```
++
++`VISITSHEET_BASE` defaults to `http://127.0.0.1:3788`. `VISITSHEET_EVIDENCE` defaults to `/workspace/visit-sheet-rc3/review/rc4/evidence`.
++
++Tests:
++
++```bash
++/tmp/node22/node_modules/node/bin/node --test tests/qa.test.js
++```
+diff --git a/review/rc4/evidence/large-a4.pdf b/review/rc4/evidence/large-a4.pdf
+new file mode 100644
+index 0000000..503c59c
+Binary files /dev/null and b/review/rc4/evidence/large-a4.pdf differ
+diff --git a/review/rc4/evidence/large-letter.pdf b/review/rc4/evidence/large-letter.pdf
+new file mode 100644
+index 0000000..7255f23
+Binary files /dev/null and b/review/rc4/evidence/large-letter.pdf differ
+diff --git a/review/rc4/evidence/normal-a4.pdf b/review/rc4/evidence/normal-a4.pdf
+new file mode 100644
+index 0000000..73e330b
+Binary files /dev/null and b/review/rc4/evidence/normal-a4.pdf differ
+diff --git a/review/rc4/evidence/normal-letter.pdf b/review/rc4/evidence/normal-letter.pdf
+new file mode 100644
+index 0000000..58c0ba3
+Binary files /dev/null and b/review/rc4/evidence/normal-letter.pdf differ
+diff --git a/review/rc4/evidence/npm-test.txt b/review/rc4/evidence/npm-test.txt
+new file mode 100644
+index 0000000..e330396
+--- /dev/null
++++ b/review/rc4/evidence/npm-test.txt
+@@ -0,0 +1,22 @@
++(node:625693) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
++(Use `node --trace-warnings ...` to show where the warning was created)
++TAP version 13
++# (node:625699) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
++# (Use `node --trace-warnings ...` to show where the warning was created)
++# Request rejected 415 charset.unsupported
++# Request rejected 413 entity.too.large
++# Subtest: QA cases for the merged VisitSheet spec
++ok 1 - QA cases for the merged VisitSheet spec
++  ---
++  duration_ms: 663.793147
++  type: 'test'
++  ...
++1..1
++# tests 1
++# suites 0
++# pass 1
++# fail 0
++# cancelled 0
++# skipped 0
++# todo 0
++# duration_ms 810.316289
+diff --git a/review/rc4/evidence/pdfinfo.txt b/review/rc4/evidence/pdfinfo.txt
+new file mode 100644
+index 0000000..08bbff4
+--- /dev/null
++++ b/review/rc4/evidence/pdfinfo.txt
+@@ -0,0 +1,84 @@
++=== pdfinfo normal-letter ===
++Title:           Check-up at Example Family Clinic (fictional) · VisitSheet
++Creator:         Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36
++Producer:        Skia/PDF m154
++CreationDate:    Sun Oct 11 02:00:49 2026 HKT
++ModDate:         Sun Oct 11 02:00:49 2026 HKT
++Custom Metadata: no
++Metadata Stream: no
++Tagged:          no
++UserProperties:  no
++Suspects:        no
++Form:            none
++JavaScript:      no
++Pages:           1
++Encrypted:       no
++Page size:       612 x 792 pts (letter)
++Page rot:        0
++File size:       23269 bytes
++Optimized:       no
++PDF version:     1.4
++=== pdfinfo normal-a4 ===
++Title:           Check-up at Example Family Clinic (fictional) · VisitSheet
++Creator:         Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36
++Producer:        Skia/PDF m154
++CreationDate:    Sun Oct 11 02:00:49 2026 HKT
++ModDate:         Sun Oct 11 02:00:49 2026 HKT
++Custom Metadata: no
++Metadata Stream: no
++Tagged:          no
++UserProperties:  no
++Suspects:        no
++Form:            none
++JavaScript:      no
++Pages:           1
++Encrypted:       no
++Page size:       595.92 x 842.88 pts (A4)
++Page rot:        0
++File size:       23285 bytes
++Optimized:       no
++PDF version:     1.4
++=== pdfinfo large-letter ===
++Title:           Check-up at Example Family Clinic (fictional) · VisitSheet
++Creator:         Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36
++Producer:        Skia/PDF m154
++CreationDate:    Sun Oct 11 02:00:50 2026 HKT
++ModDate:         Sun Oct 11 02:00:50 2026 HKT
++Custom Metadata: no
++Metadata Stream: no
++Tagged:          no
++UserProperties:  no
++Suspects:        no
++Form:            none
++JavaScript:      no
++Pages:           2
++Encrypted:       no
++Page size:       612 x 792 pts (letter)
++Page rot:        0
++File size:       24183 bytes
++Optimized:       no
++PDF version:     1.4
++=== pdfinfo large-a4 ===
++Title:           Check-up at Example Family Clinic (fictional) · VisitSheet
++Creator:         Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36
++Producer:        Skia/PDF m154
++CreationDate:    Sun Oct 11 02:00:50 2026 HKT
++ModDate:         Sun Oct 11 02:00:50 2026 HKT
++Custom Metadata: no
++Metadata Stream: no
++Tagged:          no
++UserProperties:  no
++Suspects:        no
++Form:            none
++JavaScript:      no
++Pages:           2
++Encrypted:       no
++Page size:       595.92 x 842.88 pts (A4)
++Page rot:        0
++File size:       24100 bytes
++Optimized:       no
++PDF version:     1.4
++=== pdftotext normal-letter ===
++Disclaimer present: "VisitSheet organizes your own notes. It is not medical advice. All demo data is fictional."
++"Log out" absent.
++Page counts: normal Letter 1, normal A4 1, large-print Letter 2, large-print A4 2.
+diff --git a/review/rc4/evidence/results.json b/review/rc4/evidence/results.json
+new file mode 100644
+index 0000000..84b7cb1
+--- /dev/null
++++ b/review/rc4/evidence/results.json
+@@ -0,0 +1,1586 @@
++[
++  {
++    "name": "health",
++    "ok": true,
++    "detail": "200 {\"ok\":true}"
++  },
++  {
++    "name": "404 status",
++    "ok": true,
++    "detail": "404"
++  },
++  {
++    "name": "404 disclaimer",
++    "ok": true,
++    "detail": "missing"
++  },
++  {
++    "name": "404 no leak",
++    "ok": true,
++    "detail": "leak or crash"
++  },
++  {
++    "name": "413",
++    "ok": true,
++    "detail": "413"
++  },
++  {
++    "name": "415",
++    "ok": true,
++    "detail": "415"
++  },
++  {
++    "name": "320 login overflow",
++    "ok": true,
++    "detail": "{'n': 0, 'sw': 320, 'cw': 320}"
++  },
++  {
++    "name": "320 login email",
++    "ok": true,
++    "detail": ""
++  },
++  {
++    "name": "320 login disclaimer",
++    "ok": true,
++    "detail": ""
++  },
++  {
++    "name": "320 hello",
++    "ok": true,
++    "detail": "Hello, Robin Sample"
++  },
++  {
++    "name": "320 next 7",
++    "ok": true,
++    "detail": ""
++  },
++  {
++    "name": "320 dashboard overflow",
++    "ok": true,
++    "detail": "{'n': 0, 'sw': 320, 'cw': 320}"
++  },
++  {
++    "name": "320 access",
++    "ok": true,
++    "detail": ""
++  },
++  {
++    "name": "320 edit summary",
++    "ok": true,
++    "detail": ""
++  },
++  {
++    "name": "320 visit overflow",
++    "ok": true,
++    "detail": "{'n': 0, 'sw': 320, 'cw': 320}"
++  },
++  {
++    "name": "320 brief sections",
++    "ok": true,
++    "detail": ""
++  },
++  {
++    "name": "320 brief overflow",
++    "ok": true,
++    "detail": "{'n': 0, 'sw': 320, 'cw': 320}"
++  },
++  {
++    "name": "320 large-print class",
++    "ok": true,
++    "detail": "large-print"
++  },
++  {
++    "name": "320 large-print bigger",
++    "ok": true,
++    "detail": "32px -> 40px"
++  },
++  {
++    "name": "320 large-print overflow",
++    "ok": true,
++    "detail": "{'n': 0, 'sw': 320, 'cw': 320}"
++  },
++  {
++    "name": "320 medicines overflow",
++    "ok": true,
++    "detail": "{'n': 0, 'sw': 320, 'cw': 320}"
++  },
++  {
++    "name": "320 atkinson",
++    "ok": true,
++    "detail": "\"Atkinson Hyperlegible\", \"Segoe UI\", \"Helvetica Neue\", sans-serif"
++  },
++  {
++    "name": "320 pageerror",
++    "ok": true,
++    "detail": "[]"
++  },
++  {
++    "name": "1024 login overflow",
++    "ok": true,
++    "detail": "{'n': 0, 'sw': 1024, 'cw': 1024}"
++  },
++  {
++    "name": "1024 login email",
++    "ok": true,
++    "detail": ""
++  },
++  {
++    "name": "1024 login disclaimer",
++    "ok": true,
++    "detail": ""
++  },
++  {
++    "name": "1024 hello",
++    "ok": true,
++    "detail": "Hello, Robin Sample"
++  },
++  {
++    "name": "1024 next 7",
++    "ok": true,
++    "detail": ""
++  },
++  {
++    "name": "1024 dashboard overflow",
++    "ok": true,
++    "detail": "{'n': 0, 'sw': 1024, 'cw': 1024}"
++  },
++  {
++    "name": "1024 access",
++    "ok": true,
++    "detail": ""
++  },
++  {
++    "name": "1024 edit summary",
++    "ok": true,
++    "detail": ""
++  },
++  {
++    "name": "1024 visit overflow",
++    "ok": true,
++    "detail": "{'n': 0, 'sw': 1024, 'cw': 1024}"
++  },
++  {
++    "name": "1024 brief sections",
++    "ok": true,
++    "detail": ""
++  },
++  {
++    "name": "1024 brief overflow",
++    "ok": true,
++    "detail": "{'n': 0, 'sw': 1024, 'cw': 1024}"
++  },
++  {
++    "name": "1024 large-print class",
++    "ok": true,
++    "detail": "large-print"
++  },
++  {
++    "name": "1024 large-print bigger",
++    "ok": true,
++    "detail": "32px -> 40px"
++  },
++  {
++    "name": "1024 large-print overflow",
++    "ok": true,
++    "detail": "{'n': 0, 'sw': 1024, 'cw': 1024}"
++  },
++  {
++    "name": "1024 medicines overflow",
++    "ok": true,
++    "detail": "{'n': 0, 'sw': 1024, 'cw': 1024}"
++  },
++  {
++    "name": "1024 atkinson",
++    "ok": true,
++    "detail": "\"Atkinson Hyperlegible\", \"Segoe UI\", \"Helvetica Neue\", sans-serif"
++  },
++  {
++    "name": "1024 pageerror",
++    "ok": true,
++    "detail": "[]"
++  },
++  {
++    "name": "1440 login overflow",
++    "ok": true,
++    "detail": "{'n': 0, 'sw': 1440, 'cw': 1440}"
++  },
++  {
++    "name": "1440 login email",
++    "ok": true,
++    "detail": ""
++  },
++  {
++    "name": "1440 login disclaimer",
++    "ok": true,
++    "detail": ""
++  },
++  {
++    "name": "1440 hello",
++    "ok": true,
++    "detail": "Hello, Robin Sample"
++  },
++  {
++    "name": "1440 next 7",
++    "ok": true,
++    "detail": ""
++  },
++  {
++    "name": "1440 dashboard overflow",
++    "ok": true,
++    "detail": "{'n': 0, 'sw': 1440, 'cw': 1440}"
++  },
++  {
++    "name": "1440 access",
++    "ok": true,
++    "detail": ""
++  },
++  {
++    "name": "1440 edit summary",
++    "ok": true,
++    "detail": ""
++  },
++  {
++    "name": "1440 visit overflow",
++    "ok": true,
++    "detail": "{'n': 0, 'sw': 1440, 'cw': 1440}"
++  },
++  {
++    "name": "1440 brief sections",
++    "ok": true,
++    "detail": ""
++  },
++  {
++    "name": "1440 brief overflow",
++    "ok": true,
++    "detail": "{'n': 0, 'sw': 1440, 'cw': 1440}"
++  },
++  {
++    "name": "1440 large-print class",
++    "ok": true,
++    "detail": "large-print"
++  },
++  {
++    "name": "1440 large-print bigger",
++    "ok": true,
++    "detail": "32px -> 40px"
++  },
++  {
++    "name": "1440 large-print overflow",
++    "ok": true,
++    "detail": "{'n': 0, 'sw': 1440, 'cw': 1440}"
++  },
++  {
++    "name": "1440 medicines overflow",
++    "ok": true,
++    "detail": "{'n': 0, 'sw': 1440, 'cw': 1440}"
++  },
++  {
++    "name": "1440 atkinson",
++    "ok": true,
++    "detail": "\"Atkinson Hyperlegible\", \"Segoe UI\", \"Helvetica Neue\", sans-serif"
++  },
++  {
++    "name": "1440 pageerror",
++    "ok": true,
++    "detail": "[]"
++  },
++  {
++    "name": "320 combo overflow",
++    "ok": true,
++    "detail": "{'n': 0, 'sw': 320, 'cw': 320}"
++  },
++  {
++    "name": "320 combo classes",
++    "ok": true,
++    "detail": "large-text high-contrast large-print"
++  },
++  {
++    "name": "320 combo h1",
++    "ok": true,
++    "detail": "40px"
++  },
++  {
++    "name": "empty login",
++    "ok": true,
++    "detail": ""
++  },
++  {
++    "name": "bad password",
++    "ok": true,
++    "detail": ""
++  },
++  {
++    "name": "tab to edit",
++    "ok": true,
++    "detail": "visit-details"
++  },
++  {
++    "name": "enter opens edit",
++    "ok": true,
++    "detail": "open=True active=edit-title"
++  },
++  {
++    "name": "space opens edit",
++    "ok": true,
++    "detail": "open=True active=edit-title"
++  },
++  {
++    "name": "bad details stay",
++    "ok": true,
++    "detail": ""
++  },
++  {
++    "name": "moved question",
++    "ok": true,
++    "detail": "1. Is it OK to keep doing my morning walk?\n\nUp\nDown\n Asked\nSave\nDelete\n\n2. Can we go over when I take Sample Tablet A?\n\nUp\nDown\n Asked\nSave\nDelete\n\n3. How do I tell the clinic how "
++  },
++  {
++    "name": "carry offer",
++    "ok": true,
++    "detail": ""
++  },
++  {
++    "name": "carried",
++    "ok": true,
++    "detail": "elete\nAdd a question\nAdd question\nStarter questions\nCan we go over my medicine list as I wrote it?\nAdd\nWho do I call if I have a question after the visit?\nAdd\nCan you write the main points down for me?\nAdd\nWhat should I bring next time?\nAdd"
++  },
++  {
++    "name": "diary added",
++    "ok": true,
++    "detail": ""
++  },
++  {
++    "name": "xss literal",
++    "ok": true,
++    "detail": "[]"
++  },
++  {
++    "name": "empty visit",
++    "ok": true,
++    "detail": ""
++  },
++  {
++    "name": "empty medicine",
++    "ok": true,
++    "detail": ""
++  },
++  {
++    "name": "about me saved",
++    "ok": true,
++    "detail": ""
++  },
++  {
++    "name": "logged out display",
++    "ok": true,
++    "detail": "large-text high-contrast"
++  },
++  {
++    "name": "print header hidden normal",
++    "ok": true,
++    "detail": "none"
++  },
++  {
++    "name": "print header hidden large",
++    "ok": true,
++    "detail": "none"
++  },
++  {
++    "name": "print large bigger than normal",
++    "ok": true,
++    "detail": "{'normal': {'h1': '21.3333px', 'disc': '14px', 'body': 'large-text high-contrast', 'family': '\"Atkinson Hyperlegible\", \"Segoe UI\", \"Helvetica Neue\", sans-serif'}, 'large': {'h1': '29.3333px', 'disc': '21.3333px', 'body': 'large-text high-contrast large-print', 'family': '\"Atkinson Hyperlegible\", \"Segoe UI\", \"Helvetica Neue\", sans-serif'}}"
++  },
++  {
++    "name": "interaction pageerrors",
++    "ok": true,
++    "detail": "[]"
++  },
++  {
++    "name": "interaction console",
++    "ok": true,
++    "detail": "['Failed to load resource: the server responded with a status of 400 (Bad Request)', 'Failed to load resource: the server responded with a status of 401 (Unauthorized)', 'Failed to load resource: the server responded with a status of 400 (Bad Request)', 'Failed to load resource: the server responded with a status of 400 (Bad Request)', 'Failed to load resource: the server responded with a status of 400 (Bad Request)']"
++  },
++  {
++    "name": "cross sandbox",
++    "ok": true,
++    "detail": "404"
++  },
++  {
++    "name": "font 320 /login",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 320,
++    "path": "/login",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 320,
++    "client_width": 320,
++    "h2_h3": [
++      {
++        "selector": "h2#demo-heading",
++        "px": 28,
++        "links": []
++      }
++    ],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 320 /about",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 320,
++    "path": "/about",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 320,
++    "client_width": 320,
++    "h2_h3": [
++      {
++        "selector": "h2",
++        "px": 28,
++        "links": []
++      },
++      {
++        "selector": "h2",
++        "px": 28,
++        "links": []
++      }
++    ],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 320 /display",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 320,
++    "path": "/display",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 320,
++    "client_width": 320,
++    "h2_h3": [],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 320 /dashboard",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 320,
++    "path": "/dashboard",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 320,
++    "client_width": 320,
++    "h2_h3": [
++      {
++        "selector": "h2",
++        "px": 28,
++        "links": [
++          {
++            "selector": "a",
++            "px": 28
++          }
++        ]
++      },
++      {
++        "selector": "h2#visits-heading",
++        "px": 28,
++        "links": []
++      },
++      {
++        "selector": "h3",
++        "px": 24,
++        "links": [
++          {
++            "selector": "a",
++            "px": 24
++          }
++        ]
++      },
++      {
++        "selector": "h3",
++        "px": 24,
++        "links": [
++          {
++            "selector": "a",
++            "px": 24
++          }
++        ]
++      },
++      {
++        "selector": "h3",
++        "px": 24,
++        "links": [
++          {
++            "selector": "a",
++            "px": 24
++          }
++        ]
++      },
++      {
++        "selector": "h2#new-visit-heading",
++        "px": 28,
++        "links": []
++      }
++    ],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 320 /visits/49",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 320,
++    "path": "/visits/49",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 320,
++    "client_width": 320,
++    "h2_h3": [
++      {
++        "selector": "h2#access-heading",
++        "px": 28,
++        "links": []
++      },
++      {
++        "selector": "h2#questions",
++        "px": 28,
++        "links": []
++      },
++      {
++        "selector": "h3",
++        "px": 24,
++        "links": []
++      },
++      {
++        "selector": "h3#if-there-is-time",
++        "px": 24,
++        "links": []
++      },
++      {
++        "selector": "h3",
++        "px": 24,
++        "links": []
++      },
++      {
++        "selector": "h3",
++        "px": 24,
++        "links": []
++      },
++      {
++        "selector": "h2#diary",
++        "px": 28,
++        "links": []
++      },
++      {
++        "selector": "h2#takeaways",
++        "px": 28,
++        "links": []
++      }
++    ],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 320 /visits/49/brief",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 320,
++    "path": "/visits/49/brief",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 320,
++    "client_width": 320,
++    "h2_h3": [
++      {
++        "selector": "h2#access-heading",
++        "px": 28,
++        "links": []
++      },
++      {
++        "selector": "h2#questions-heading",
++        "px": 28,
++        "links": []
++      },
++      {
++        "selector": "h3",
++        "px": 24,
++        "links": []
++      },
++      {
++        "selector": "h3",
++        "px": 24,
++        "links": []
++      },
++      {
++        "selector": "h2#notes-heading",
++        "px": 28,
++        "links": []
++      },
++      {
++        "selector": "h2#meds-heading",
++        "px": 28,
++        "links": []
++      }
++    ],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 320 /visits/49/brief?text=large",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text large-print",
++    "viewport": 320,
++    "path": "/visits/49/brief?text=large",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 320,
++    "client_width": 320,
++    "h2_h3": [
++      {
++        "selector": "h2#access-heading",
++        "px": 32,
++        "links": []
++      },
++      {
++        "selector": "h2#questions-heading",
++        "px": 32,
++        "links": []
++      },
++      {
++        "selector": "h3",
++        "px": 26,
++        "links": []
++      },
++      {
++        "selector": "h3",
++        "px": 26,
++        "links": []
++      },
++      {
++        "selector": "h2#notes-heading",
++        "px": 32,
++        "links": []
++      },
++      {
++        "selector": "h2#meds-heading",
++        "px": 32,
++        "links": []
++      }
++    ],
++    "body_class": "large-text large-print",
++    "status": 200
++  },
++  {
++    "name": "font 320 /medicines",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 320,
++    "path": "/medicines",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 320,
++    "client_width": 320,
++    "h2_h3": [
++      {
++        "selector": "h2#list",
++        "px": 28,
++        "links": []
++      },
++      {
++        "selector": "h3.med-line",
++        "px": 24,
++        "links": []
++      },
++      {
++        "selector": "h3.med-line",
++        "px": 24,
++        "links": []
++      },
++      {
++        "selector": "h2#add-med-heading",
++        "px": 28,
++        "links": []
++      }
++    ],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 320 /about-me",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 320,
++    "path": "/about-me",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 320,
++    "client_width": 320,
++    "h2_h3": [],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 320 /settings",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 320,
++    "path": "/settings",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 320,
++    "client_width": 320,
++    "h2_h3": [
++      {
++        "selector": "h2#reset-heading",
++        "px": 28,
++        "links": []
++      }
++    ],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 320 /visits/49/delete",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 320,
++    "path": "/visits/49/delete",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 320,
++    "client_width": 320,
++    "h2_h3": [],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 320 /demo/reset",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 320,
++    "path": "/demo/reset",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 320,
++    "client_width": 320,
++    "h2_h3": [],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 320 /no-such-page",
++    "ok": true,
++    "detail": "status=404 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 320,
++    "path": "/no-such-page",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 320,
++    "client_width": 320,
++    "h2_h3": [],
++    "body_class": "large-text",
++    "status": 404
++  },
++  {
++    "name": "font 390 /login",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 390,
++    "path": "/login",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 390,
++    "client_width": 390,
++    "h2_h3": [
++      {
++        "selector": "h2#demo-heading",
++        "px": 28,
++        "links": []
++      }
++    ],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 390 /about",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 390,
++    "path": "/about",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 390,
++    "client_width": 390,
++    "h2_h3": [
++      {
++        "selector": "h2",
++        "px": 28,
++        "links": []
++      },
++      {
++        "selector": "h2",
++        "px": 28,
++        "links": []
++      }
++    ],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 390 /display",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 390,
++    "path": "/display",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 390,
++    "client_width": 390,
++    "h2_h3": [],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 390 /dashboard",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 390,
++    "path": "/dashboard",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 390,
++    "client_width": 390,
++    "h2_h3": [
++      {
++        "selector": "h2",
++        "px": 28,
++        "links": [
++          {
++            "selector": "a",
++            "px": 28
++          }
++        ]
++      },
++      {
++        "selector": "h2#visits-heading",
++        "px": 28,
++        "links": []
++      },
++      {
++        "selector": "h3",
++        "px": 24,
++        "links": [
++          {
++            "selector": "a",
++            "px": 24
++          }
++        ]
++      },
++      {
++        "selector": "h3",
++        "px": 24,
++        "links": [
++          {
++            "selector": "a",
++            "px": 24
++          }
++        ]
++      },
++      {
++        "selector": "h3",
++        "px": 24,
++        "links": [
++          {
++            "selector": "a",
++            "px": 24
++          }
++        ]
++      },
++      {
++        "selector": "h2#new-visit-heading",
++        "px": 28,
++        "links": []
++      }
++    ],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 390 /visits/52",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 390,
++    "path": "/visits/52",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 390,
++    "client_width": 390,
++    "h2_h3": [
++      {
++        "selector": "h2#access-heading",
++        "px": 28,
++        "links": []
++      },
++      {
++        "selector": "h2#questions",
++        "px": 28,
++        "links": []
++      },
++      {
++        "selector": "h3",
++        "px": 24,
++        "links": []
++      },
++      {
++        "selector": "h3#if-there-is-time",
++        "px": 24,
++        "links": []
++      },
++      {
++        "selector": "h3",
++        "px": 24,
++        "links": []
++      },
++      {
++        "selector": "h3",
++        "px": 24,
++        "links": []
++      },
++      {
++        "selector": "h2#diary",
++        "px": 28,
++        "links": []
++      },
++      {
++        "selector": "h2#takeaways",
++        "px": 28,
++        "links": []
++      }
++    ],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 390 /visits/52/brief",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 390,
++    "path": "/visits/52/brief",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 390,
++    "client_width": 390,
++    "h2_h3": [
++      {
++        "selector": "h2#access-heading",
++        "px": 28,
++        "links": []
++      },
++      {
++        "selector": "h2#questions-heading",
++        "px": 28,
++        "links": []
++      },
++      {
++        "selector": "h3",
++        "px": 24,
++        "links": []
++      },
++      {
++        "selector": "h3",
++        "px": 24,
++        "links": []
++      },
++      {
++        "selector": "h2#notes-heading",
++        "px": 28,
++        "links": []
++      },
++      {
++        "selector": "h2#meds-heading",
++        "px": 28,
++        "links": []
++      }
++    ],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 390 /visits/52/brief?text=large",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text large-print",
++    "viewport": 390,
++    "path": "/visits/52/brief?text=large",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 390,
++    "client_width": 390,
++    "h2_h3": [
++      {
++        "selector": "h2#access-heading",
++        "px": 32,
++        "links": []
++      },
++      {
++        "selector": "h2#questions-heading",
++        "px": 32,
++        "links": []
++      },
++      {
++        "selector": "h3",
++        "px": 26,
++        "links": []
++      },
++      {
++        "selector": "h3",
++        "px": 26,
++        "links": []
++      },
++      {
++        "selector": "h2#notes-heading",
++        "px": 32,
++        "links": []
++      },
++      {
++        "selector": "h2#meds-heading",
++        "px": 32,
++        "links": []
++      }
++    ],
++    "body_class": "large-text large-print",
++    "status": 200
++  },
++  {
++    "name": "font 390 /medicines",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 390,
++    "path": "/medicines",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 390,
++    "client_width": 390,
++    "h2_h3": [
++      {
++        "selector": "h2#list",
++        "px": 28,
++        "links": []
++      },
++      {
++        "selector": "h3.med-line",
++        "px": 24,
++        "links": []
++      },
++      {
++        "selector": "h3.med-line",
++        "px": 24,
++        "links": []
++      },
++      {
++        "selector": "h2#add-med-heading",
++        "px": 28,
++        "links": []
++      }
++    ],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 390 /about-me",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 390,
++    "path": "/about-me",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 390,
++    "client_width": 390,
++    "h2_h3": [],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 390 /settings",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 390,
++    "path": "/settings",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 390,
++    "client_width": 390,
++    "h2_h3": [
++      {
++        "selector": "h2#reset-heading",
++        "px": 28,
++        "links": []
++      }
++    ],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 390 /visits/52/delete",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 390,
++    "path": "/visits/52/delete",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 390,
++    "client_width": 390,
++    "h2_h3": [],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 390 /demo/reset",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 390,
++    "path": "/demo/reset",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 390,
++    "client_width": 390,
++    "h2_h3": [],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 390 /no-such-page",
++    "ok": true,
++    "detail": "status=404 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 390,
++    "path": "/no-such-page",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 390,
++    "client_width": 390,
++    "h2_h3": [],
++    "body_class": "large-text",
++    "status": 404
++  },
++  {
++    "name": "font 1440 /login",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 1440,
++    "path": "/login",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 1440,
++    "client_width": 1440,
++    "h2_h3": [
++      {
++        "selector": "h2#demo-heading",
++        "px": 28,
++        "links": []
++      }
++    ],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 1440 /about",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 1440,
++    "path": "/about",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 1440,
++    "client_width": 1440,
++    "h2_h3": [
++      {
++        "selector": "h2",
++        "px": 28,
++        "links": []
++      },
++      {
++        "selector": "h2",
++        "px": 28,
++        "links": []
++      }
++    ],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 1440 /display",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 1440,
++    "path": "/display",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 1440,
++    "client_width": 1440,
++    "h2_h3": [],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 1440 /dashboard",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 1440,
++    "path": "/dashboard",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 1440,
++    "client_width": 1440,
++    "h2_h3": [
++      {
++        "selector": "h2",
++        "px": 28,
++        "links": [
++          {
++            "selector": "a",
++            "px": 28
++          }
++        ]
++      },
++      {
++        "selector": "h2#visits-heading",
++        "px": 28,
++        "links": []
++      },
++      {
++        "selector": "h3",
++        "px": 24,
++        "links": [
++          {
++            "selector": "a",
++            "px": 24
++          }
++        ]
++      },
++      {
++        "selector": "h3",
++        "px": 24,
++        "links": [
++          {
++            "selector": "a",
++            "px": 24
++          }
++        ]
++      },
++      {
++        "selector": "h3",
++        "px": 24,
++        "links": [
++          {
++            "selector": "a",
++            "px": 24
++          }
++        ]
++      },
++      {
++        "selector": "h2#new-visit-heading",
++        "px": 28,
++        "links": []
++      }
++    ],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 1440 /visits/55",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 1440,
++    "path": "/visits/55",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 1440,
++    "client_width": 1440,
++    "h2_h3": [
++      {
++        "selector": "h2#access-heading",
++        "px": 28,
++        "links": []
++      },
++      {
++        "selector": "h2#questions",
++        "px": 28,
++        "links": []
++      },
++      {
++        "selector": "h3",
++        "px": 24,
++        "links": []
++      },
++      {
++        "selector": "h3#if-there-is-time",
++        "px": 24,
++        "links": []
++      },
++      {
++        "selector": "h3",
++        "px": 24,
++        "links": []
++      },
++      {
++        "selector": "h3",
++        "px": 24,
++        "links": []
++      },
++      {
++        "selector": "h2#diary",
++        "px": 28,
++        "links": []
++      },
++      {
++        "selector": "h2#takeaways",
++        "px": 28,
++        "links": []
++      }
++    ],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 1440 /visits/55/brief",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 1440,
++    "path": "/visits/55/brief",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 1440,
++    "client_width": 1440,
++    "h2_h3": [
++      {
++        "selector": "h2#access-heading",
++        "px": 28,
++        "links": []
++      },
++      {
++        "selector": "h2#questions-heading",
++        "px": 28,
++        "links": []
++      },
++      {
++        "selector": "h3",
++        "px": 24,
++        "links": []
++      },
++      {
++        "selector": "h3",
++        "px": 24,
++        "links": []
++      },
++      {
++        "selector": "h2#notes-heading",
++        "px": 28,
++        "links": []
++      },
++      {
++        "selector": "h2#meds-heading",
++        "px": 28,
++        "links": []
++      }
++    ],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 1440 /visits/55/brief?text=large",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text large-print",
++    "viewport": 1440,
++    "path": "/visits/55/brief?text=large",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 1440,
++    "client_width": 1440,
++    "h2_h3": [
++      {
++        "selector": "h2#access-heading",
++        "px": 32,
++        "links": []
++      },
++      {
++        "selector": "h2#questions-heading",
++        "px": 32,
++        "links": []
++      },
++      {
++        "selector": "h3",
++        "px": 26,
++        "links": []
++      },
++      {
++        "selector": "h3",
++        "px": 26,
++        "links": []
++      },
++      {
++        "selector": "h2#notes-heading",
++        "px": 32,
++        "links": []
++      },
++      {
++        "selector": "h2#meds-heading",
++        "px": 32,
++        "links": []
++      }
++    ],
++    "body_class": "large-text large-print",
++    "status": 200
++  },
++  {
++    "name": "font 1440 /medicines",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 1440,
++    "path": "/medicines",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 1440,
++    "client_width": 1440,
++    "h2_h3": [
++      {
++        "selector": "h2#list",
++        "px": 28,
++        "links": []
++      },
++      {
++        "selector": "h3.med-line",
++        "px": 24,
++        "links": []
++      },
++      {
++        "selector": "h3.med-line",
++        "px": 24,
++        "links": []
++      },
++      {
++        "selector": "h2#add-med-heading",
++        "px": 28,
++        "links": []
++      }
++    ],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 1440 /about-me",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 1440,
++    "path": "/about-me",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 1440,
++    "client_width": 1440,
++    "h2_h3": [],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 1440 /settings",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 1440,
++    "path": "/settings",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 1440,
++    "client_width": 1440,
++    "h2_h3": [
++      {
++        "selector": "h2#reset-heading",
++        "px": 28,
++        "links": []
++      }
++    ],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 1440 /visits/55/delete",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 1440,
++    "path": "/visits/55/delete",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 1440,
++    "client_width": 1440,
++    "h2_h3": [],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 1440 /demo/reset",
++    "ok": true,
++    "detail": "status=200 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 1440,
++    "path": "/demo/reset",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 1440,
++    "client_width": 1440,
++    "h2_h3": [],
++    "body_class": "large-text",
++    "status": 200
++  },
++  {
++    "name": "font 1440 /no-such-page",
++    "ok": true,
++    "detail": "status=404 min=22 sel=a.skip overflow=0 body=large-text",
++    "viewport": 1440,
++    "path": "/no-such-page",
++    "min_px": 22,
++    "min_selector": "a.skip",
++    "overflow": 0,
++    "scroll_width": 1440,
++    "client_width": 1440,
++    "h2_h3": [],
++    "body_class": "large-text",
++    "status": 404
++  }
++]
+\ No newline at end of file
+diff --git a/review/rc4/evidence/screenshots/01-login.png b/review/rc4/evidence/screenshots/01-login.png
+new file mode 100644
+index 0000000..889c4e3
+Binary files /dev/null and b/review/rc4/evidence/screenshots/01-login.png differ
+diff --git a/review/rc4/evidence/screenshots/08-high-contrast.png b/review/rc4/evidence/screenshots/08-high-contrast.png
+new file mode 100644
+index 0000000..c91fc64
+Binary files /dev/null and b/review/rc4/evidence/screenshots/08-high-contrast.png differ
+diff --git a/review/rc4/evidence/verify-stdout.txt b/review/rc4/evidence/verify-stdout.txt
+new file mode 100644
+index 0000000..c6ff4a6
+--- /dev/null
++++ b/review/rc4/evidence/verify-stdout.txt
+@@ -0,0 +1,150 @@
++OK   health 200 {"ok":true}
++OK   404 status 404
++OK   404 disclaimer missing
++OK   404 no leak leak or crash
++OK   413 413
++OK   415 415
++(node:624337) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
++(Use `node --trace-warnings ...` to show where the warning was created)
++OK   320 login overflow {'n': 0, 'sw': 320, 'cw': 320}
++OK   320 login email 
++OK   320 login disclaimer 
++OK   320 hello Hello, Robin Sample
++OK   320 next 7 
++OK   320 dashboard overflow {'n': 0, 'sw': 320, 'cw': 320}
++OK   320 access 
++OK   320 edit summary 
++OK   320 visit overflow {'n': 0, 'sw': 320, 'cw': 320}
++OK   320 brief sections 
++OK   320 brief overflow {'n': 0, 'sw': 320, 'cw': 320}
++OK   320 large-print class large-print
++OK   320 large-print bigger 32px -> 40px
++OK   320 large-print overflow {'n': 0, 'sw': 320, 'cw': 320}
++OK   320 medicines overflow {'n': 0, 'sw': 320, 'cw': 320}
++OK   320 atkinson "Atkinson Hyperlegible", "Segoe UI", "Helvetica Neue", sans-serif
++OK   320 pageerror []
++OK   1024 login overflow {'n': 0, 'sw': 1024, 'cw': 1024}
++OK   1024 login email 
++OK   1024 login disclaimer 
++OK   1024 hello Hello, Robin Sample
++OK   1024 next 7 
++OK   1024 dashboard overflow {'n': 0, 'sw': 1024, 'cw': 1024}
++OK   1024 access 
++OK   1024 edit summary 
++OK   1024 visit overflow {'n': 0, 'sw': 1024, 'cw': 1024}
++OK   1024 brief sections 
++OK   1024 brief overflow {'n': 0, 'sw': 1024, 'cw': 1024}
++OK   1024 large-print class large-print
++OK   1024 large-print bigger 32px -> 40px
++OK   1024 large-print overflow {'n': 0, 'sw': 1024, 'cw': 1024}
++OK   1024 medicines overflow {'n': 0, 'sw': 1024, 'cw': 1024}
++OK   1024 atkinson "Atkinson Hyperlegible", "Segoe UI", "Helvetica Neue", sans-serif
++OK   1024 pageerror []
++OK   1440 login overflow {'n': 0, 'sw': 1440, 'cw': 1440}
++OK   1440 login email 
++OK   1440 login disclaimer 
++OK   1440 hello Hello, Robin Sample
++OK   1440 next 7 
++OK   1440 dashboard overflow {'n': 0, 'sw': 1440, 'cw': 1440}
++OK   1440 access 
++OK   1440 edit summary 
++OK   1440 visit overflow {'n': 0, 'sw': 1440, 'cw': 1440}
++OK   1440 brief sections 
++OK   1440 brief overflow {'n': 0, 'sw': 1440, 'cw': 1440}
++OK   1440 large-print class large-print
++OK   1440 large-print bigger 32px -> 40px
++OK   1440 large-print overflow {'n': 0, 'sw': 1440, 'cw': 1440}
++OK   1440 medicines overflow {'n': 0, 'sw': 1440, 'cw': 1440}
++OK   1440 atkinson "Atkinson Hyperlegible", "Segoe UI", "Helvetica Neue", sans-serif
++OK   1440 pageerror []
++OK   320 combo overflow {'n': 0, 'sw': 320, 'cw': 320}
++OK   320 combo classes large-text high-contrast large-print
++OK   320 combo h1 40px
++OK   empty login 
++OK   bad password 
++OK   tab to edit visit-details
++OK   enter opens edit open=True active=edit-title
++OK   space opens edit open=True active=edit-title
++OK   bad details stay 
++OK   moved question 1. Is it OK to keep doing my morning walk?
++
++Up
++Down
++ Asked
++Save
++Delete
++
++2. Can we go over when I take Sample Tablet A?
++
++Up
++Down
++ Asked
++Save
++Delete
++
++3. How do I tell the clinic how 
++OK   carry offer 
++OK   carried elete
++Add a question
++Add question
++Starter questions
++Can we go over my medicine list as I wrote it?
++Add
++Who do I call if I have a question after the visit?
++Add
++Can you write the main points down for me?
++Add
++What should I bring next time?
++Add
++OK   diary added 
++OK   xss literal []
++OK   empty visit 
++OK   empty medicine 
++OK   about me saved 
++OK   logged out display large-text high-contrast
++OK   print header hidden normal none
++OK   print header hidden large none
++OK   print large bigger than normal {'normal': {'h1': '21.3333px', 'disc': '14px', 'body': 'large-text high-contrast', 'family': '"Atkinson Hyperlegible", "Segoe UI", "Helvetica Neue", sans-serif'}, 'large': {'h1': '29.3333px', 'disc': '21.3333px', 'body': 'large-text high-contrast large-print', 'family': '"Atkinson Hyperlegible", "Segoe UI", "Helvetica Neue", sans-serif'}}
++OK   interaction pageerrors []
++OK   interaction console ['Failed to load resource: the server responded with a status of 400 (Bad Request)', 'Failed to load resource: the server responded with a status of 401 (Unauthorized)', 'Failed to load resource: the server responded with a status of 400 (Bad Request)', 'Failed to load resource: the server responded with a status of 400 (Bad Request)', 'Failed to load resource: the server responded with a status of 400 (Bad Request)']
++OK   cross sandbox 404
++OK   font 320 /login status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 320 /about status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 320 /display status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 320 /dashboard status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 320 /visits/49 status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 320 /visits/49/brief status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 320 /visits/49/brief?text=large status=200 min=22 sel=a.skip overflow=0 body=large-text large-print
++OK   font 320 /medicines status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 320 /about-me status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 320 /settings status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 320 /visits/49/delete status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 320 /demo/reset status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 320 /no-such-page status=404 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 390 /login status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 390 /about status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 390 /display status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 390 /dashboard status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 390 /visits/52 status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 390 /visits/52/brief status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 390 /visits/52/brief?text=large status=200 min=22 sel=a.skip overflow=0 body=large-text large-print
++OK   font 390 /medicines status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 390 /about-me status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 390 /settings status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 390 /visits/52/delete status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 390 /demo/reset status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 390 /no-such-page status=404 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 1440 /login status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 1440 /about status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 1440 /display status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 1440 /dashboard status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 1440 /visits/55 status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 1440 /visits/55/brief status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 1440 /visits/55/brief?text=large status=200 min=22 sel=a.skip overflow=0 body=large-text large-print
++OK   font 1440 /medicines status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 1440 /about-me status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 1440 /settings status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 1440 /visits/55/delete status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 1440 /demo/reset status=200 min=22 sel=a.skip overflow=0 body=large-text
++OK   font 1440 /no-such-page status=404 min=22 sel=a.skip overflow=0 body=large-text
++TOTAL 120 FAIL 0
+diff --git a/scripts/verify.py b/scripts/verify.py
+new file mode 100644
+index 0000000..98d405f
+--- /dev/null
++++ b/scripts/verify.py
+@@ -0,0 +1,487 @@
++#!/usr/bin/env python3
++"""Walk VisitSheet acceptance at 320, 1024, and 1440, then scan large-text fonts.
++
++BASE and OUT:
++  VISITSHEET_BASE default http://127.0.0.1:3788
++  VISITSHEET_EVIDENCE default /workspace/visit-sheet-rc3/review/rc4/evidence
++"""
++import json
++import os
++import urllib.request
++import urllib.error
++from pathlib import Path
++from urllib.parse import urlparse
++from playwright.sync_api import sync_playwright
++
++BASE = os.environ.get("VISITSHEET_BASE", "http://127.0.0.1:3788").rstrip("/")
++OUT = Path(os.environ.get("VISITSHEET_EVIDENCE", "/workspace/visit-sheet-rc3/review/rc4/evidence"))
++OUT.mkdir(parents=True, exist_ok=True)
++LEAK = ("ReferenceError", "TypeError", "/workspace/", "/home/", "node_modules", "<pre", "at Object.", ".ejs:")
++DISC = "VisitSheet organizes your own notes. It is not medical advice. All demo data is fictional."
++RESULTS = []
++
++
++def add(name, ok, detail="", **extra):
++    item = {"name": name, "ok": bool(ok), "detail": str(detail)[:500]}
++    item.update(extra)
++    RESULTS.append(item)
++    print(("OK  " if ok else "FAIL") + f" {name} {detail}", flush=True)
++
++
++def overflow(page):
++    return page.evaluate(
++        """() => {
++          const el = document.documentElement;
++          return { n: el.scrollWidth - el.clientWidth, sw: el.scrollWidth, cw: el.clientWidth };
++        }"""
++    )
++
++
++def fonts(page):
++    return page.evaluate(
++        """() => {
++          const h1 = document.querySelector('h1');
++          const disc = document.querySelector('.brief-disclaimer, footer p, .site-footer');
++          const cs = (node) => node ? getComputedStyle(node).fontSize : '';
++          return { h1: cs(h1), disc: cs(disc), body: document.body.className,
++                   family: getComputedStyle(document.body).fontFamily };
++        }"""
++    )
++
++
++def no_leak(html):
++    low = html or ""
++    return not any(token in low for token in LEAK)
++
++
++def http(method, path, data=None, headers=None):
++    req = urllib.request.Request(BASE + path, data=data, headers=headers or {}, method=method)
++    try:
++        with urllib.request.urlopen(req, timeout=20) as res:
++            body = res.read().decode("utf-8", "replace")
++            return res.status, body
++    except urllib.error.HTTPError as err:
++        body = err.read().decode("utf-8", "replace")
++        return err.code, body
++
++
++def login(page):
++    page.goto(BASE + "/login?fill=1", wait_until="networkidle")
++    page.locator("form[action='/login'] button[type=submit]").click()
++    page.wait_for_load_state("networkidle")
++
++
++def font_probe(page):
++    """Visible text floor for vs_display=large. Skip .visually-hidden and .sr-only."""
++    return page.evaluate(
++        """() => {
++          function skipped(el) {
++            if (el.closest('.visually-hidden, .sr-only')) return true;
++            for (let node = el; node && node.nodeType === 1; node = node.parentElement) {
++              const style = getComputedStyle(node);
++              if (style.display === 'none' || style.visibility === 'hidden') return true;
++            }
++            return false;
++          }
++          function selector(el) {
++            const tag = el.tagName.toLowerCase();
++            const id = el.id ? '#' + el.id : '';
++            const raw = typeof el.className === 'string' ? el.className : '';
++            const cls = raw.trim().split(/\\s+/).filter(Boolean).slice(0, 3);
++            return tag + id + (cls.length ? '.' + cls.join('.') : '');
++          }
++          function directText(el) {
++            for (const node of el.childNodes) {
++              if (node.nodeType === 3 && node.textContent.trim()) return true;
++            }
++            return false;
++          }
++          const controls = new Set(['INPUT', 'TEXTAREA', 'BUTTON', 'SELECT']);
++          let minPx = null;
++          let minSelector = '';
++          const under = [];
++          const root = document.body;
++          for (const el of root.querySelectorAll('*')) {
++            if (skipped(el)) continue;
++            const control = controls.has(el.tagName);
++            if (!control && !directText(el)) continue;
++            const size = parseFloat(getComputedStyle(el).fontSize);
++            if (!Number.isFinite(size)) continue;
++            if (minPx === null || size < minPx) {
++              minPx = size;
++              minSelector = selector(el);
++            }
++            if (size < 22) under.push(selector(el) + '=' + size);
++          }
++          const headings = [];
++          let headingsOk = true;
++          for (const el of root.querySelectorAll('h2, h3')) {
++            if (skipped(el)) continue;
++            const size = parseFloat(getComputedStyle(el).fontSize);
++            const links = [];
++            for (const link of el.querySelectorAll('a')) {
++              if (skipped(link)) continue;
++              const linkSize = parseFloat(getComputedStyle(link).fontSize);
++              links.push({ selector: selector(link), px: linkSize });
++              if (!(linkSize > 22)) headingsOk = false;
++            }
++            headings.push({ selector: selector(el), px: size, links: links });
++            if (!(size > 22)) headingsOk = false;
++          }
++          const doc = document.documentElement;
++          return {
++            minPx: minPx,
++            minSelector: minSelector,
++            under: under.slice(0, 12),
++            headings: headings,
++            headingsOk: headingsOk,
++            overflow: doc.scrollWidth - doc.clientWidth,
++            scrollWidth: doc.scrollWidth,
++            clientWidth: doc.clientWidth,
++            body: document.body.className || ''
++          };
++        }"""
++    )
++
++
++def font_scan(browser):
++    """Cookie vs_display=large, then 13 pages at 320, 390, and 1440."""
++    for width in (320, 390, 1440):
++        context = browser.new_context(viewport={"width": width, "height": 900}, device_scale_factor=1)
++        # url sets host and Path=/. Playwright rejects url together with path.
++        context.add_cookies([{
++            "name": "vs_display",
++            "value": "large",
++            "url": BASE + "/",
++        }])
++        page = context.new_page()
++        try:
++            record_font(page, width, "/login", 200)
++            login(page)
++            href = page.get_attribute(".next-banner h2 a", "href")
++            if not href or not href.startswith("/visits/"):
++                add(f"font {width} next visit", False, f"missing next visit link {href}")
++                continue
++            paths = [
++                "/about",
++                "/display",
++                "/dashboard",
++                href,
++                href + "/brief",
++                href + "/brief?text=large",
++                "/medicines",
++                "/about-me",
++                "/settings",
++                href + "/delete",
++                "/demo/reset",
++                "/no-such-page",
++            ]
++            for path in paths:
++                expect = 404 if path == "/no-such-page" else 200
++                record_font(page, width, path, expect)
++        finally:
++            context.close()
++
++
++def record_font(page, width, path, expect_status):
++    response = page.goto(BASE + path, wait_until="networkidle")
++    page.evaluate("() => document.fonts.ready")
++    probe = font_probe(page)
++    landed = urlparse(page.url)
++    expected_path = path.split("?", 1)[0]
++    query_ok = True
++    if "text=large" in path:
++        query_ok = "text=large" in (landed.query or "")
++    status = response.status if response else 0
++    min_px = probe["minPx"]
++    overflow_n = probe["overflow"]
++    large_on = "large-text" in probe["body"]
++    print_on = "large-print" in probe["body"]
++    needs_print = "text=large" in path
++    ok = (
++        status == expect_status
++        and landed.path == expected_path
++        and query_ok
++        and large_on
++        and (print_on if needs_print else True)
++        and min_px is not None
++        and min_px >= 22
++        and probe["headingsOk"]
++        and overflow_n <= 1
++    )
++    detail = (
++        f"status={status} min={min_px} sel={probe['minSelector']} "
++        f"overflow={overflow_n} body={probe['body']}"
++    )
++    if probe["under"]:
++        detail += " under=" + ",".join(probe["under"])
++    add(
++        f"font {width} {path}",
++        ok,
++        detail,
++        viewport=width,
++        path=path,
++        min_px=min_px,
++        min_selector=probe["minSelector"],
++        overflow=overflow_n,
++        scroll_width=probe["scrollWidth"],
++        client_width=probe["clientWidth"],
++        h2_h3=probe["headings"],
++        body_class=probe["body"],
++        status=status,
++    )
++
++
++def main():
++    status, health = http("GET", "/health")
++    add("health", status == 200 and health.strip() == '{"ok":true}', f"{status} {health[:80]}")
++
++    status, body = http("GET", "/no-such-page")
++    add("404 status", status == 404, status)
++    add("404 disclaimer", DISC in body, "missing")
++    add("404 no leak", no_leak(body) and "Something went wrong" not in body and "Page not found" in body, "leak or crash")
++
++    big = b"a=" + b"x" * 80000
++    status, body = http("POST", "/login", data=big, headers={"Content-Type": "application/x-www-form-urlencoded"})
++    add("413", status == 413 and "Something went wrong" in body and DISC in body and no_leak(body), status)
++
++    status, body = http(
++        "POST",
++        "/login",
++        data=b"email=a&password=b",
++        headers={"Content-Type": "application/x-www-form-urlencoded; charset=foo"},
++    )
++    add("415", status == 415 and "Something went wrong" in body and DISC in body and no_leak(body), status)
++
++    with sync_playwright() as p:
++        browser = p.chromium.launch(
++            executable_path="/usr/bin/google-chrome",
++            args=["--no-sandbox", "--disable-dev-shm-usage"],
++        )
++        for width in (320, 1024, 1440):
++            context = browser.new_context(viewport={"width": width, "height": 900}, device_scale_factor=1)
++            page = context.new_page()
++            errors = []
++            page.on("pageerror", lambda err, w=width: errors.append(f"{w}:{err}"))
++            page.goto(BASE + "/login", wait_until="networkidle")
++            ov = overflow(page)
++            add(f"{width} login overflow", ov["n"] <= 1, ov)
++            add(f"{width} login email", "demo@visitsheet.example" in page.content(), "")
++            add(f"{width} login disclaimer", DISC in page.content(), "")
++            login(page)
++            add(f"{width} hello", "Hello, Robin Sample" in page.content(), page.locator("h1").inner_text())
++            add(f"{width} next 7", "in 7 days" in page.content(), "")
++            ov = overflow(page)
++            add(f"{width} dashboard overflow", ov["n"] <= 1, ov)
++            href = page.get_attribute(".next-banner a.button", "href")
++            page.goto(BASE + href, wait_until="networkidle")
++            add(f"{width} access", "How to communicate with me" in page.content() and "Please say one thing at a time." in page.content(), "")
++            add(f"{width} edit summary", page.locator("#visit-details").count() == 1, "")
++            ov = overflow(page)
++            add(f"{width} visit overflow", ov["n"] <= 1, ov)
++            page.goto(BASE + href + "/brief", wait_until="networkidle")
++            add(f"{width} brief sections", all(s in page.content() for s in [
++                "If we only have time for three", "If there is time", "My notes since last time",
++                "Medicines I take", "Sample Tablet A", DISC
++            ]), "")
++            ov = overflow(page)
++            add(f"{width} brief overflow", ov["n"] <= 1, ov)
++            normal = fonts(page)
++            page.goto(BASE + href + "/brief?text=large", wait_until="networkidle")
++            large = fonts(page)
++            add(f"{width} large-print class", "large-print" in large["body"], large["body"])
++            add(f"{width} large-print bigger", float(large["h1"].replace("px", "")) > float(normal["h1"].replace("px", "")), f"{normal['h1']} -> {large['h1']}")
++            ov = overflow(page)
++            add(f"{width} large-print overflow", ov["n"] <= 1, ov)
++            page.goto(BASE + "/medicines", wait_until="networkidle")
++            ov = overflow(page)
++            add(f"{width} medicines overflow", ov["n"] <= 1, ov)
++            add(f"{width} atkinson", "Atkinson" in fonts(page)["family"], fonts(page)["family"])
++            add(f"{width} pageerror", not errors, errors)
++            context.close()
++
++        # Combined display + large print at 320
++        context = browser.new_context(viewport={"width": 320, "height": 900})
++        page = context.new_page()
++        login(page)
++        href = page.get_attribute(".next-banner a.button", "href")
++        page.goto(BASE + "/display", wait_until="networkidle")
++        page.locator("#large_text").check()
++        page.locator("#high_contrast").check()
++        page.locator("form[action='/display'] button[type=submit]").click()
++        page.wait_for_load_state("networkidle")
++        page.goto(BASE + href + "/brief?text=large", wait_until="networkidle")
++        combo = fonts(page)
++        ov = overflow(page)
++        add("320 combo overflow", ov["n"] <= 1, ov)
++        add("320 combo classes", "large-print" in combo["body"] and "large-text" in combo["body"] and "high-contrast" in combo["body"], combo["body"])
++        add("320 combo h1", float(combo["h1"].replace("px", "")) >= 36, combo["h1"])
++        context.close()
++
++        # Interactions, keyboard, print, boundaries on a fresh login at 1440
++        context = browser.new_context(viewport={"width": 1440, "height": 900})
++        page = context.new_page()
++        pageerrors = []
++        console_bad = []
++        page.on("pageerror", lambda err: pageerrors.append(str(err)))
++        page.on("console", lambda msg: console_bad.append(msg.text) if msg.type == "error" else None)
++
++        page.goto(BASE + "/login", wait_until="networkidle")
++        page.locator("form[action='/login'] button[type=submit]").click()
++        page.wait_for_load_state("networkidle")
++        add("empty login", "Email is required." in page.content() and "Password is required." in page.content(), "")
++
++        page.locator("#email").fill("demo@visitsheet.example")
++        page.locator("#password").fill("wrong-pass")
++        page.locator("form[action='/login'] button[type=submit]").click()
++        page.wait_for_load_state("networkidle")
++        add("bad password", "Email or password is wrong." in page.content(), "")
++
++        login(page)
++        href = page.get_attribute(".next-banner a.button", "href")
++        page.goto(BASE + href, wait_until="networkidle")
++
++        page.locator("a.button.danger", has_text="Delete visit").focus()
++        page.keyboard.press("Tab")
++        active = page.evaluate("() => document.activeElement.id")
++        add("tab to edit", active == "visit-details", active)
++        page.keyboard.press("Enter")
++        opened = page.evaluate("() => document.querySelector('details.visit-edit').open")
++        page.keyboard.press("Tab")
++        active = page.evaluate("() => document.activeElement.id")
++        add("enter opens edit", opened and active == "edit-title", f"open={opened} active={active}")
++
++        page.keyboard.press("Escape")
++        page.goto(BASE + href, wait_until="networkidle")
++        page.locator("a.button.danger", has_text="Delete visit").focus()
++        page.keyboard.press("Tab")
++        page.keyboard.press(" ")
++        page.wait_for_timeout(200)
++        opened = page.evaluate("() => document.querySelector('details.visit-edit').open")
++        page.keyboard.press("Tab")
++        active = page.evaluate("() => document.activeElement.id")
++        add("space opens edit", opened and active == "edit-title", f"open={opened} active={active}")
++
++        # keep with-whom on bad date
++        page.locator("#edit-title").fill("")
++        page.locator("#edit-date").fill("2026-13-40")
++        page.locator("#edit-with").fill("Kept Clinician")
++        page.locator("form[action$='/details'] button[type=submit]").click()
++        page.wait_for_load_state("networkidle")
++        add("bad details stay", "Title is required." in page.content() and "Enter a real date" in page.content() and "Kept Clinician" in page.locator("#edit-with").input_value(), "")
++
++        page.goto(BASE + href, wait_until="networkidle")
++        before = page.locator("#questions li, #questions .question, li[id^='q-']").count()
++        page.locator("button[aria-label='Move question 4 up']").click()
++        page.wait_for_load_state("networkidle")
++        top = page.locator("ol.questions").first.inner_text()
++        add("moved question", "How do I tell the clinic how I communicate?" in top, top[:180])
++        page.locator("text=Not asked last time").scroll_into_view_if_needed()
++        add("carry offer", "Who do I call if the headache comes back on a weekend?" in page.content(), "")
++        page.locator("button", has_text="Add to this visit").click()
++        page.wait_for_load_state("networkidle")
++        section = page.locator("section[aria-labelledby='questions']").inner_text()
++        add("carried", "Who do I call if the headache comes back on a weekend?" in section, section[-240:])
++
++        # diary
++        page.locator("#diary-date").fill("2026-10-10")
++        page.locator("#diary-text").fill("Practice note, fictional.")
++        page.locator("form[action$='/diary'] button[type=submit]").click()
++        page.wait_for_load_state("networkidle")
++        add("diary added", "Practice note, fictional." in page.content(), "")
++
++        # xss question
++        dialogs = []
++        page.on("dialog", lambda d: dialogs.append(d.message) or d.dismiss())
++        page.locator("#question-text").fill("<script>alert(1)</script>")
++        page.locator("form.stack button", has_text="Add question").click()
++        page.wait_for_load_state("networkidle")
++        add("xss literal", "<script>alert(1)</script>" in page.locator("body").inner_text() and not dialogs, dialogs)
++
++        # new visit empty
++        page.goto(BASE + "/dashboard", wait_until="networkidle")
++        page.locator("form[action='/visits'] button[type=submit]").click()
++        page.wait_for_load_state("networkidle")
++        add("empty visit", "Title is required." in page.content(), "")
++
++        # medicine empty
++        page.goto(BASE + "/medicines", wait_until="networkidle")
++        page.locator("form[action='/medicines'] button[type=submit]").click()
++        page.wait_for_load_state("networkidle")
++        add("empty medicine", "Name is required." in page.content(), "")
++
++        # about me
++        page.goto(BASE + "/about-me", wait_until="networkidle")
++        page.locator("#access_note").fill("Please wait if I am writing.")
++        page.locator("form[action='/about-me'] button[type=submit]").click()
++        page.wait_for_load_state("networkidle")
++        add("about me saved", "Please wait if I am writing." in page.content(), "")
++
++        # display logged out
++        page.goto(BASE + "/display", wait_until="networkidle")
++        page.locator("#large_text").check()
++        page.locator("#high_contrast").check()
++        page.locator("form[action='/display'] button[type=submit]").click()
++        page.wait_for_load_state("networkidle")
++        page.locator("form[action='/logout'] button[type=submit]").click()
++        page.wait_for_load_state("networkidle")
++        classes = page.locator("body").get_attribute("class") or ""
++        add("logged out display", "large-text" in classes and "high-contrast" in classes and page.locator("h1").inner_text() == "Log in", classes)
++
++        # print sizes
++        page.goto(BASE + "/login?fill=1", wait_until="networkidle")
++        page.locator("form[action='/login'] button[type=submit]").click()
++        page.wait_for_load_state("networkidle")
++        href = page.get_attribute(".next-banner a.button", "href")
++        print_fonts = {}
++        for label, url in (
++            ("normal", href + "/brief"),
++            ("large", href + "/brief?text=large"),
++        ):
++            page.goto(BASE + url, wait_until="networkidle")
++            page.emulate_media(media="print")
++            printed = fonts(page)
++            print_fonts[label] = printed
++            letter = OUT / f"{label}-letter.pdf"
++            a4 = OUT / f"{label}-a4.pdf"
++            page.pdf(path=str(letter), format="Letter", prefer_css_page_size=True, print_background=True)
++            page.pdf(path=str(a4), format="A4", prefer_css_page_size=True, print_background=True)
++            hidden = page.evaluate("() => getComputedStyle(document.querySelector('.site-header')).display")
++            add(f"print header hidden {label}", hidden == "none", hidden)
++            page.emulate_media(media="screen")
++        add(
++            "print large bigger than normal",
++            float(print_fonts["large"]["h1"].replace("px", "")) > float(print_fonts["normal"]["h1"].replace("px", ""))
++            and float(print_fonts["large"]["disc"].replace("px", "")) > float(print_fonts["normal"]["disc"].replace("px", "")),
++            print_fonts,
++        )
++
++        add("interaction pageerrors", not pageerrors, pageerrors)
++        unexpected = [line for line in console_bad if "Failed to load resource" not in line]
++        add("interaction console", not unexpected, unexpected or console_bad)
++        context.close()
++
++        # cross-sandbox
++        a = browser.new_context()
++        b = browser.new_context()
++        pa, pb = a.new_page(), b.new_page()
++        login(pa)
++        login(pb)
++        href = pa.get_attribute(".next-banner a.button", "href")
++        resp = pb.goto(BASE + href, wait_until="networkidle")
++        add("cross sandbox", resp.status == 404 and "Page not found" in pb.content() and DISC in pb.content(), resp.status)
++        a.close()
++        b.close()
++        font_scan(browser)
++        browser.close()
++
++    # pdf page counts via pdfinfo done outside if files exist
++    (OUT / "results.json").write_text(json.dumps(RESULTS, indent=2))
++    failed = [item for item in RESULTS if not item["ok"]]
++    print(f"TOTAL {len(RESULTS)} FAIL {len(failed)}", flush=True)
++    if failed:
++        raise SystemExit(1)
++
++
++if __name__ == "__main__":
++    main()

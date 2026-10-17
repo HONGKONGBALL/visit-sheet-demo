@@ -1,0 +1,18 @@
+Source: /workspace/demo/visit-sheet-demo-v4.mp4
+The video file was not modified. These commands only read it and write PNGs.
+The pre-fix large-text interval is about 127–149 s. At about 126 s the Display page shows Saved. At about 127 s and 128 s the dashboard is in large text. At about 134 s and 149 s the login page is on screen with those large-text choices still applied.
+
+ffmpeg -y -nostdin -i /workspace/demo/visit-sheet-demo-v4.mp4 -ss 126 -frames:v 1 review/rc6/evidence/frame-126s.png
+frame-126s.png: Display page, the word Saved, Large text and High contrast checked.
+
+ffmpeg -y -nostdin -i /workspace/demo/visit-sheet-demo-v4.mp4 -ss 127 -frames:v 1 review/rc6/evidence/frame-127s.png
+frame-127s.png: large-text high-contrast dashboard, Hello, Robin Sample, Next visit.
+
+ffmpeg -y -nostdin -i /workspace/demo/visit-sheet-demo-v4.mp4 -ss 128 -frames:v 1 review/rc6/evidence/frame-128s.png
+frame-128s.png: the same dashboard. The subtitle is "The same display choices stay on across pages."
+
+ffmpeg -y -nostdin -i /workspace/demo/visit-sheet-demo-v4.mp4 -ss 134 -frames:v 1 review/rc6/evidence/frame-134s.png
+frame-134s.png: the login page, not the dashboard. Large text and high contrast are still on. The demo account is visible.
+
+ffmpeg -y -nostdin -i /workspace/demo/visit-sheet-demo-v4.mp4 -ss 149 -frames:v 1 review/rc6/evidence/frame-149s.png
+frame-149s.png: the login page still. The subtitle is "They still apply on the login page, after you log out."

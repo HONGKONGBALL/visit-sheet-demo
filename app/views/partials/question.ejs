@@ -1,0 +1,27 @@
+<li id="q-<%= q.id %>" class="question" tabindex="-1" <%= focus === ('q-' + q.id) ? 'autofocus' : '' %>>
+  <p class="question-text"><span class="q-num"><%= q.position %>.</span> <%= q.text %></p>
+  <div class="question-actions">
+    <form method="post" action="/questions/<%= q.id %>/move">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <input type="hidden" name="dir" value="up">
+      <button type="submit" class="secondary" aria-label="Move question <%= q.position %> up">Up</button>
+    </form>
+    <form method="post" action="/questions/<%= q.id %>/move">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <input type="hidden" name="dir" value="down">
+      <button type="submit" class="secondary" aria-label="Move question <%= q.position %> down">Down</button>
+    </form>
+    <form method="post" action="/questions/<%= q.id %>/asked" class="asked-form" data-autosubmit>
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <label for="asked-<%= q.id %>">
+        <input id="asked-<%= q.id %>" type="checkbox" name="asked" value="1" <%= q.asked ? 'checked' : '' %>>
+        Asked
+      </label>
+      <button type="submit" class="secondary">Save</button>
+    </form>
+    <form method="post" action="/questions/<%= q.id %>/delete">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <button type="submit" class="secondary">Delete</button>
+    </form>
+  </div>
+</li>

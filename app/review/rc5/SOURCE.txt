@@ -1,0 +1,9 @@
+# rc5 source
+
+branch: rc3-work
+rc4 parent: d28833329ecf9e351bbafff66986c979921c03a2
+product commit: dcb7898d91f377d140955d36db9e2ad675f67dd6
+product message: Candidate rc5: date-independent QA tests
+Correction (rc6): that line is the historical commit message. The suite was not fully date-independent. Inserted visit dates 2026-12-01 and 2026-12-15 stayed fixed calendar days until rc6.
+
+The annotated tag rc5 points at the commit that records this file (the child of the product commit). That commit does not change tests/qa.test.js or any product file. diff-from-rc4.patch is the diff from rc4 through this source record. Confirm the tag with `git rev-parse rc5^{}` and `git rev-parse HEAD`.

@@ -1,0 +1,62 @@
+VisitSheet — BUILD RC6
+Date: 2026-10-11
+Branch: rc3-work
+Parent rc5: 4e8361a13dc0a64a3514e593e21fa13271a86727
+rc5 product/tests commit: dcb7898d91f377d140955d36db9e2ad675f67dd6
+Parent rc4: d28833329ecf9e351bbafff66986c979921c03a2
+Product commit and tag: see the "Git" section. The annotated tag rc6 points at the doc-correction commit. That commit does not change tests/qa.test.js or any product file.
+
+No push. No new git remote. No Devpost submit. The demo video was not re-recorded.
+
+Start:
+  npm install && npm run seed && npm start
+  Node.js 22 LTS or newer. Optional PORT (default 3000).
+  Login: demo@visitsheet.example / demo-pass-48, or press "Fill in the demo login".
+  This round did not run scripts/verify.py and did not start a server. Product files are unchanged versus rc5 and versus rc4, so the rc4 browser, PDF, and screenshot evidence stays valid.
+
+What this round changed, on top of rc5:
+  tests/qa.test.js inserted dates now use shiftDays(40). The 2026-10-04 literal is gone. Current docs say about 127–149 s. The rc5 date-independent claim is corrected. Product paths are unchanged versus rc5 and versus rc4.
+
+Tests (Node v22.23.3). System node is v20.19.2 and did not run these tests. PATH put /tmp/node22/node_modules/node/bin first. npm test is `node --test tests/qa.test.js`. Each log is under review/rc6/evidence/ and includes node --version, the host date, the observed date, the command, the exit code, and the untrimmed test output. Each run exited 0 and the node:test summary contains `# fail 0`.
+  1. Real machine date, no faketime. date: Sun Oct 11 19:01:02 PDT 2026. date -I: 2026-10-11. Command: npm test. Exit code 0. review/rc6/evidence/npm-test-real-date.txt
+  2. Fake date 2026-10-13 12:00:00. Process date: Tue Oct 13 12:00:00 PDT 2026. Exit code 0. review/rc6/evidence/npm-test-2026-10-13.txt
+  3. Fake date 2026-10-14 12:00:00. Process date: Wed Oct 14 12:00:00 PDT 2026. Exit code 0. review/rc6/evidence/npm-test-2026-10-14.txt
+  4. Fake date 2026-10-24 12:00:00. Process date: Sat Oct 24 12:00:00 PDT 2026. Exit code 0. review/rc6/evidence/npm-test-2026-10-24.txt
+  5. Fake date 2026-11-20 12:00:00. Process date: Fri Nov 20 12:00:00 PST 2026. Exit code 0. review/rc6/evidence/npm-test-2026-11-20.txt
+  6. Fake date 2026-11-24 12:00:00. Process date: Tue Nov 24 12:00:00 PST 2026. Exit code 0. review/rc6/evidence/npm-test-2026-11-24.txt
+  7. Fake date 2026-11-25 12:00:00. Process date: Wed Nov 25 12:00:00 PST 2026. Exit code 0. review/rc6/evidence/npm-test-2026-11-25.txt
+  8. Fake date 2026-12-01 12:00:00. Process date: Tue Dec  1 12:00:00 PST 2026. Exit code 0. review/rc6/evidence/npm-test-2026-12-01.txt
+  9. Fake date 2026-12-31 12:00:00. Process date: Thu Dec 31 12:00:00 PST 2026. Exit code 0. review/rc6/evidence/npm-test-2026-12-31.txt
+  10. Fake date 2027-01-01 12:00:00. Process date: Fri Jan  1 12:00:00 PST 2027. Exit code 0. review/rc6/evidence/npm-test-2027-01-01.txt
+  11. Fake date 2035-06-15 12:00:00. Process date: Fri Jun 15 12:00:00 PDT 2035. Exit code 0. review/rc6/evidence/npm-test-2035-06-15.txt
+  12. TZ=America/Los_Angeles, fake date 2026-11-01 12:00:00. Process date: Sun Nov  1 12:00:00 PST 2026. Exit code 0. review/rc6/evidence/npm-test-la-2026-11-01.txt
+  13. TZ=America/Los_Angeles, fake date 2027-03-14 12:00:00. Process date: Sun Mar 14 12:00:00 PDT 2027. Exit code 0. review/rc6/evidence/npm-test-la-2027-03-14.txt
+  Node version record: review/rc6/evidence/node-version.txt
+  faketime: this account cannot install packages into /usr. /tmp/bin/faketime preloads libfaketime under /tmp/faketime-root (outside the repo, not committed) and was the faketime command in the fake-date logs. The host clock was not changed.
+
+Product diff versus rc5, and versus rc4, for src, views, public, server.js, package.json, and package-lock.json is empty. See review/rc6/evidence/product-diff.txt.
+
+Demo video (facts copied from BUILD-RC5.txt; this round did not re-measure the file and did not rewrite the video):
+  path: /workspace/demo/visit-sheet-demo-v4.mp4
+  sha256: 33dada6c472fe69d7a6d363407e513e3239d6042ebc4af7ae02548d529e5e5be
+  duration: 157.954362 s (about 157.95 s, about 2:38)
+  video: 1920×1080 H.264, 30 fps
+  video stream bit-identical to visit-sheet-demo-v2.mp4
+  video-stream sha256 (ffmpeg -map 0:v:0 -c copy -f h264, then sha256): 910a8fb974a30c9080e5dc7c5fa92b1418c26cb233001b993467154aabf41b93
+  audio: AAC LC, stereo, 48 kHz, 136329 bps (about 136 kbps)
+  TTS: DashScope / Bailian, model qwen3-tts-flash, voice Cherry
+  The file has not been uploaded. The YouTube field is empty.
+  The pre-fix large-text interval is about 127–149 s. At about 126 s the Display page shows Saved. At about 127 s and 128 s the dashboard is in large text. At about 134 s and 149 s the login page is on screen with those large-text choices still applied. Frames: review/rc6/evidence/frame-126s.png, frame-127s.png, frame-128s.png, frame-134s.png, frame-149s.png.
+  The video was not re-recorded.
+  v2 is the older picture file. It is not the delivery file.
+
+Git:
+  Product/tests commit remains 3da94ad13c6dd2443c823eca8933256a6377450e.
+  Message: Candidate rc6: date-independent visit inserts and demo interval
+  Hash-record commit remains ee29f9db9b608c690c1b84b5ca1c63f95a6f2426 and was not rewritten.
+  A doc-correction commit follows it. The annotated tag rc6 points at the doc-correction commit. That commit does not change tests/qa.test.js or any product file.
+  No push. No git remote. After the tag the worktree is clean except the untracked FIX-TASK-RC5.md and FIX-TASK-RC6.md, which this round did not edit, commit, or gitignore.
+
+Status: implementation and self-check done, awaiting acceptance.
+
+Statement: no push, no Devpost.

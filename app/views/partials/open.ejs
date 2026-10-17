@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= (typeof title !== 'undefined' && title) ? title : 'VisitSheet' %> · VisitSheet</title>
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<%
+   var classes = [];
+   var displayMode = (typeof display !== 'undefined' && display) ? display : null;
+   var signedIn = (typeof user !== 'undefined' && user) ? user : null;
+   var here = (typeof currentPath !== 'undefined' && currentPath) ? currentPath : '';
+   var token = (typeof csrf !== 'undefined' && csrf) ? csrf : '';
+   if (displayMode && displayMode.large) classes.push('large-text');
+   if (displayMode && displayMode.contrast) classes.push('high-contrast');
+   if (typeof largePrint !== 'undefined' && largePrint) classes.push('large-print');
+%>
+<body class="<%= classes.join(' ') %>">
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <p class="brand"><a href="<%= signedIn ? '/dashboard' : '/' %>">VisitSheet</a></p>
+  <nav aria-label="Main">
+    <ul>
+      <% if (signedIn) { %>
+        <li><a href="/dashboard" <%= here === '/dashboard' ? 'aria-current="page"' : '' %>>Dashboard</a></li>
+        <li><a href="/medicines" <%= here === '/medicines' ? 'aria-current="page"' : '' %>>Medicines</a></li>
+        <li><a href="/about-me" <%= here === '/about-me' ? 'aria-current="page"' : '' %>>About me</a></li>
+        <li><a href="/display" <%= here === '/display' ? 'aria-current="page"' : '' %>>Display</a></li>
+        <li><a href="/settings" <%= here === '/settings' ? 'aria-current="page"' : '' %>>Settings</a></li>
+        <li><a href="/about" <%= here === '/about' ? 'aria-current="page"' : '' %>>About</a></li>
+        <li>
+          <form method="post" action="/logout" class="inline-form">
+            <input type="hidden" name="_csrf" value="<%= token %>">
+            <button type="submit" class="linkish">Log out</button>
+          </form>
+        </li>
+      <% } else { %>
+        <li><a href="/login" <%= here === '/login' ? 'aria-current="page"' : '' %>>Log in</a></li>
+        <li><a href="/display" <%= here === '/display' ? 'aria-current="page"' : '' %>>Display</a></li>
+        <li><a href="/about" <%= here === '/about' ? 'aria-current="page"' : '' %>>About</a></li>
+      <% } %>
+    </ul>
+  </nav>
+</header>
+<main id="main">

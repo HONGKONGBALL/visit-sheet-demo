@@ -1,0 +1,150 @@
+OK   health 200 {"ok":true}
+OK   404 status 404
+OK   404 disclaimer missing
+OK   404 no leak leak or crash
+OK   413 413
+OK   415 415
+(node:624337) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+OK   320 login overflow {'n': 0, 'sw': 320, 'cw': 320}
+OK   320 login email 
+OK   320 login disclaimer 
+OK   320 hello Hello, Robin Sample
+OK   320 next 7 
+OK   320 dashboard overflow {'n': 0, 'sw': 320, 'cw': 320}
+OK   320 access 
+OK   320 edit summary 
+OK   320 visit overflow {'n': 0, 'sw': 320, 'cw': 320}
+OK   320 brief sections 
+OK   320 brief overflow {'n': 0, 'sw': 320, 'cw': 320}
+OK   320 large-print class large-print
+OK   320 large-print bigger 32px -> 40px
+OK   320 large-print overflow {'n': 0, 'sw': 320, 'cw': 320}
+OK   320 medicines overflow {'n': 0, 'sw': 320, 'cw': 320}
+OK   320 atkinson "Atkinson Hyperlegible", "Segoe UI", "Helvetica Neue", sans-serif
+OK   320 pageerror []
+OK   1024 login overflow {'n': 0, 'sw': 1024, 'cw': 1024}
+OK   1024 login email 
+OK   1024 login disclaimer 
+OK   1024 hello Hello, Robin Sample
+OK   1024 next 7 
+OK   1024 dashboard overflow {'n': 0, 'sw': 1024, 'cw': 1024}
+OK   1024 access 
+OK   1024 edit summary 
+OK   1024 visit overflow {'n': 0, 'sw': 1024, 'cw': 1024}
+OK   1024 brief sections 
+OK   1024 brief overflow {'n': 0, 'sw': 1024, 'cw': 1024}
+OK   1024 large-print class large-print
+OK   1024 large-print bigger 32px -> 40px
+OK   1024 large-print overflow {'n': 0, 'sw': 1024, 'cw': 1024}
+OK   1024 medicines overflow {'n': 0, 'sw': 1024, 'cw': 1024}
+OK   1024 atkinson "Atkinson Hyperlegible", "Segoe UI", "Helvetica Neue", sans-serif
+OK   1024 pageerror []
+OK   1440 login overflow {'n': 0, 'sw': 1440, 'cw': 1440}
+OK   1440 login email 
+OK   1440 login disclaimer 
+OK   1440 hello Hello, Robin Sample
+OK   1440 next 7 
+OK   1440 dashboard overflow {'n': 0, 'sw': 1440, 'cw': 1440}
+OK   1440 access 
+OK   1440 edit summary 
+OK   1440 visit overflow {'n': 0, 'sw': 1440, 'cw': 1440}
+OK   1440 brief sections 
+OK   1440 brief overflow {'n': 0, 'sw': 1440, 'cw': 1440}
+OK   1440 large-print class large-print
+OK   1440 large-print bigger 32px -> 40px
+OK   1440 large-print overflow {'n': 0, 'sw': 1440, 'cw': 1440}
+OK   1440 medicines overflow {'n': 0, 'sw': 1440, 'cw': 1440}
+OK   1440 atkinson "Atkinson Hyperlegible", "Segoe UI", "Helvetica Neue", sans-serif
+OK   1440 pageerror []
+OK   320 combo overflow {'n': 0, 'sw': 320, 'cw': 320}
+OK   320 combo classes large-text high-contrast large-print
+OK   320 combo h1 40px
+OK   empty login 
+OK   bad password 
+OK   tab to edit visit-details
+OK   enter opens edit open=True active=edit-title
+OK   space opens edit open=True active=edit-title
+OK   bad details stay 
+OK   moved question 1. Is it OK to keep doing my morning walk?
+
+Up
+Down
+ Asked
+Save
+Delete
+
+2. Can we go over when I take Sample Tablet A?
+
+Up
+Down
+ Asked
+Save
+Delete
+
+3. How do I tell the clinic how 
+OK   carry offer 
+OK   carried elete
+Add a question
+Add question
+Starter questions
+Can we go over my medicine list as I wrote it?
+Add
+Who do I call if I have a question after the visit?
+Add
+Can you write the main points down for me?
+Add
+What should I bring next time?
+Add
+OK   diary added 
+OK   xss literal []
+OK   empty visit 
+OK   empty medicine 
+OK   about me saved 
+OK   logged out display large-text high-contrast
+OK   print header hidden normal none
+OK   print header hidden large none
+OK   print large bigger than normal {'normal': {'h1': '21.3333px', 'disc': '14px', 'body': 'large-text high-contrast', 'family': '"Atkinson Hyperlegible", "Segoe UI", "Helvetica Neue", sans-serif'}, 'large': {'h1': '29.3333px', 'disc': '21.3333px', 'body': 'large-text high-contrast large-print', 'family': '"Atkinson Hyperlegible", "Segoe UI", "Helvetica Neue", sans-serif'}}
+OK   interaction pageerrors []
+OK   interaction console ['Failed to load resource: the server responded with a status of 400 (Bad Request)', 'Failed to load resource: the server responded with a status of 401 (Unauthorized)', 'Failed to load resource: the server responded with a status of 400 (Bad Request)', 'Failed to load resource: the server responded with a status of 400 (Bad Request)', 'Failed to load resource: the server responded with a status of 400 (Bad Request)']
+OK   cross sandbox 404
+OK   font 320 /login status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 320 /about status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 320 /display status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 320 /dashboard status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 320 /visits/49 status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 320 /visits/49/brief status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 320 /visits/49/brief?text=large status=200 min=22 sel=a.skip overflow=0 body=large-text large-print
+OK   font 320 /medicines status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 320 /about-me status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 320 /settings status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 320 /visits/49/delete status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 320 /demo/reset status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 320 /no-such-page status=404 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 390 /login status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 390 /about status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 390 /display status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 390 /dashboard status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 390 /visits/52 status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 390 /visits/52/brief status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 390 /visits/52/brief?text=large status=200 min=22 sel=a.skip overflow=0 body=large-text large-print
+OK   font 390 /medicines status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 390 /about-me status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 390 /settings status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 390 /visits/52/delete status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 390 /demo/reset status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 390 /no-such-page status=404 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 1440 /login status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 1440 /about status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 1440 /display status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 1440 /dashboard status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 1440 /visits/55 status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 1440 /visits/55/brief status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 1440 /visits/55/brief?text=large status=200 min=22 sel=a.skip overflow=0 body=large-text large-print
+OK   font 1440 /medicines status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 1440 /about-me status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 1440 /settings status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 1440 /visits/55/delete status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 1440 /demo/reset status=200 min=22 sel=a.skip overflow=0 body=large-text
+OK   font 1440 /no-such-page status=404 min=22 sel=a.skip overflow=0 body=large-text
+TOTAL 120 FAIL 0

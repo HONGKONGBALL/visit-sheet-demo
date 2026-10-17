@@ -1,0 +1,13 @@
+# rc6 source
+
+branch: rc3-work
+rc5 parent: 4e8361a13dc0a64a3514e593e21fa13271a86727
+product commit: 3da94ad13c6dd2443c823eca8933256a6377450e
+product message: Candidate rc6: date-independent visit inserts and demo interval
+
+Product/tests commit remains 3da94ad13c6dd2443c823eca8933256a6377450e.
+Hash-record commit remains ee29f9db9b608c690c1b84b5ca1c63f95a6f2426 and was not rewritten.
+A doc-correction commit follows it. The annotated tag rc6 points at the doc-correction commit. That commit does not change tests/qa.test.js or any product file.
+Status: implementation and self-check done, awaiting acceptance.
+
+diff-from-rc5.patch is the diff from rc5. Confirm the tag with `git rev-parse rc6^{}` and `git rev-parse HEAD`.

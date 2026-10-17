@@ -1,0 +1,1351 @@
+this file is the diff from rc5, and annotated rc4 lines may still quote the retired interval while the live interval is about 127–149 s.
+
+diff --git a/ACCEPTANCE.md b/ACCEPTANCE.md
+index 1c0f8ae..3c46f9e 100644
+--- a/ACCEPTANCE.md
++++ b/ACCEPTANCE.md
+@@ -1,11 +1,15 @@
+-# VisitSheet rc4 acceptance contract
++# VisitSheet rc6 acceptance contract
+ 
+-Goal: ship a local candidate `rc4` on top of `rc3` (`b807fc514795b52b52715879e8e85699bb219327`) that restores the large-text floor and points the delivery records at the Bailian narrated demo. The product still follows `idea.md`. Where `prd.md` or `qa.md` disagree, `idea.md` wins (one fictional account, dates counted from the login day, a private sandbox per login, Display works before login).
++Goal: ship local candidate `rc6` on top of rc5. rc5 tag and HEAD are `4e8361a13dc0a64a3514e593e21fa13271a86727`. The rc5 product and tests commit is `dcb7898d91f377d140955d36db9e2ad675f67dd6`. Parent rc4 is `d28833329ecf9e351bbafff66986c979921c03a2`.
++
++The product contract stays v1. The product source is `/workspace/pipeline/healthhack/idea.md`. Where `prd.md` or `qa.md` disagree with `idea.md`, `idea.md` wins (one fictional account, dates counted from the login day, a private sandbox per login, Display works before login). Do not invent new product requirements. This round does not change product code.
+ 
+ This round does not deploy, push, or submit.
+ 
+ ## Core flows that must still close
+ 
++These are the v1 flows. They stay closed because `src/`, `views/`, `public/`, `server.js`, `package.json`, and `package-lock.json` do not change versus rc5 (and therefore versus rc4).
++
+ 1. Login with **Fill in the demo login** (`demo@visitsheet.example` / `demo-pass-48`) creates a private sandbox. The dashboard shows the next visit in 7 days.
+ 2. **Make my brief** shows the access card, the top-three box, notes, medicines, and the disclaimer. Print preview of the normal brief is one Letter page and one A4 page. The large-print brief is two Letter pages and two A4 pages.
+ 3. On the visit, **Up** moves a question into the top three. **Add to this visit** carries over an unasked question from the earlier visit.
+@@ -15,79 +19,72 @@ This round does not deploy, push, or submit.
+ ## Environment
+ 
+ - Workspace: `/workspace/visit-sheet-rc3`
+-- Node.js 22 LTS (`/tmp/node22/node_modules/node/bin/node`, v22.x). System Node 20 cannot load the local `better-sqlite3` binary.
++- Branch: `rc3-work`
++- Node.js 22 LTS (`/tmp/node22/node_modules/node/bin/node`, v22.x). System Node 20 cannot load the local `better-sqlite3` binary. `npm test` is `node --test tests/qa.test.js`.
+ - Start: `npm install && npm run seed && npm start` (optional `PORT`, default 3000).
+-- Browser evidence: headless Chrome via Playwright. No paid API.
++- Browser and PDF evidence stays the rc4 evidence. Do not re-run `scripts/verify.py` unless a product file changes.
++- No paid API. No re-record and no re-encode of `/workspace/demo/visit-sheet-demo-v4.mp4`.
+ 
+ ## Scope
+ 
+ In scope:
+ 
+-- Large-text CSS in `public/css/app.css` so visible text stays at least 22px and headings stay larger than body text.
+-- A font-size and overflow scan in the committed verifier.
+-- Reshoot screenshots `01` and `08` after that CSS fix.
+-- Docs and BUILD records for `/workspace/demo/visit-sheet-demo-v4.mp4`.
+-- Node 22 `npm test`, full verifier, PDF page counts, `BUILD-RC4.txt`, local commit and tag `rc4`, and `review/rc4/` evidence.
+-
+-Out of scope:
++- Test-only edits in `tests/qa.test.js` so inserted visit dates do not depend on the calendar day.
++- Current delivery docs name the pre-fix large-text interval as about 127–149 s.
++- `BUILD-RC6.txt`, `review/rc6/`, a local commit on `rc3-work`, and annotated tag `rc6`.
+ 
+-- Re-recording the demo video.
+-- Push, cloud deploy, Devpost submit, public GitHub URL.
+-- Optional items from the rc3 review (future-visit carry, iOS dates, auto-submit Asked, duplicate button names, checkbox size, README env vars, wide layout, screen readers, other browsers).
++Out of scope (not blockers; do not change product files for these):
+ 
+-## Acceptance criteria
++- Public demo deploy hardening (SESSION_SECRET, secure cookies, trust proxy, session store).
++- README env notes (`DB_PATH` / `SESSION_SECRET`).
++- Medicine-edit focus on validation error.
++- Asked checkbox auto-submit UX.
++- Medicine card title size.
++- Empty-field separator cleanup.
++- Duplicate button aria-labels.
++- Large-print A4 page-2 disclaimer layout.
++- High-contrast print table borders.
++- No-JS slider and print affordances.
++- Long unbreakable string overflow.
++- Demo segment re-record.
++- Stronger verify or qa assertions and missing browser evidence for other cases.
++- Git push, cloud deploy, Devpost submit, public GitHub URL.
+ 
+-A1. With the `vs_display=large` cookie, every visible text node on every walked page renders at 22px or larger. Exclude `.visually-hidden` and `.sr-only`. This includes the login demo email and password (`.mono`), including at a viewport of 480px or narrower, where `.mono` is currently forced to 14px.
++## Carried product criteria (A1–A13)
+ 
+-A2. In large-text mode, `h2` and `h3`, and the links inside them, render larger than body text (strictly greater than 22px). Medicine-card titles (`h3.med-line`) are included. Title links on the dashboard are included.
++A1–A13 keep the meanings in `review/rc4/ACCEPTANCE-TABLE.md`. They are not renumbered and not weakened. A1–A7 and A10 pass because the product tree is unchanged versus rc4. A8's live interval sentence is corrected by this round (see R2). A9 is checked again by the date matrix in R1. A11–A13 are met by `BUILD-RC6.txt`, the local tag, and `review/rc6/`.
+ 
+-A3. In large-text mode, the large-print brief header (brand, navigation, Log out) renders at 22px or larger. Wrapping is allowed. There is no horizontal overflow. Large-print without the large-text cookie may keep the 18px header.
++A8 historical note: the rc4 contract sentence named a pre-fix timestamp range that started later than the measured start. That sentence is retired for current delivery docs. The measured interval is about 127–149 s. Files that only record the rc4 round (`BUILD-RC4.txt`, `review/rc4/`) may keep the old sentence if a nearby note says the current interval is about 127–149 s.
+ 
+-A4. Print output is unchanged: `pdfinfo` reports Letter and A4 normal brief = 1 page each, large-print = 2 pages each (1/1/2/2). The normal Letter PDF still contains the disclaimer and does not contain "Log out".
++## rc6 acceptance criteria
+ 
+-A5. `scripts/verify.py` (adapted from `/tmp/vs-demo/verify.py`) sets `vs_display=large`, walks these 13 pages, and asserts A1–A3 plus no horizontal overflow at 320, 390, and 1440:
++R1. `tests/qa.test.js` no longer inserts `2026-12-01` or `2026-12-15`. Both inserted dates use `shiftDays` (already imported from `src/dates.js`) with an offset that stays outside `[D−30, D+7)` on every date below. `shiftDays(40)` meets that rule. The 400-path dates that are never inserted stay: `2026-10-30` and `2026-13-40`. The leftover literal `2026-10-04` in the diary-order check is not a 400-path date; remove that literal and keep the `shiftDays` comparison. Before the carry assertions, assert that the prior visit is still the seed past visit (`Last visit`, `shiftDays(-30)`), so a failure names the cause. Change tests only.
+ 
+-1. `/login`
+-2. `/about`
+-3. `/display`
+-4. `/dashboard`
+-5. `/visits/<next visit id>`
+-6. `/visits/<next>/brief`
+-7. `/visits/<next>/brief?text=large`
+-8. `/medicines`
+-9. `/about-me`
+-10. `/settings`
+-11. `/visits/<next>/delete`
+-12. `/demo/reset`
+-13. `/no-such-page`
++R2. Current delivery docs say the pre-fix large-text segment is about 127–149 s. The saved frames show Display with Saved at about 126 s, the large-text dashboard at about 127 s and 128 s, and the login page at about 134 s and 149 s with those large-text choices still applied. Do not write that the dashboard itself stays on screen through 149 s. At 128 s the Next-visit h2 and the list h3 share the same 468 px width. Post-fix rc4 screenshot 08 widths are 599 and 513 (28px and 24px). The live interval wording is about 127–149 s. Do not re-encode the demo.
+ 
+-The script also keeps the existing rc3 checks (health, 404, 413, 415, judge path, keyboard edit, carry, cross-sandbox, print sizes). Full run: 0 failures. Results record the minimum font size and the selector that produced it.
++R3. Any current rc5 sentence that says the QA tests are already date-independent is corrected. The rc5 commit message may be quoted as history, with a note that two inserted dates were still fixed calendar days until rc6. Do not rewrite git history.
+ 
+-A6. `docs/screenshots/01-login.png` and `docs/screenshots/08-high-contrast.png` are reshot after the CSS fix. `01` is the login page in large-text mode with the fictional demo credentials visible. `08` is large text plus high contrast (dashboard, same crop as before: above "New visit").
++R4. Node 22 test logs under `review/rc6/evidence/` each include `node --version`, the observed or simulated date, the command, the exit code, and the untrimmed test output. Each run exits 0 and the node:test summary contains `# fail 0`.
+ 
+-A7. `docs/devpost.md` Demo video section and the BUILD records name `/workspace/demo/visit-sheet-demo-v4.mp4` as the delivery video, with measured facts:
++Required runs:
+ 
+-- sha256 `33dada6c472fe69d7a6d363407e513e3239d6042ebc4af7ae02548d529e5e5be`
+-- duration about 157.95 s (about 2:38)
+-- 1920×1080 H.264 at 30 fps
+-- video stream bit-identical to v2; video-stream sha256 `910a8fb974a30c9080e5dc7c5fa92b1418c26cb233001b993467154aabf41b93`
+-- audio AAC LC stereo 48 kHz, about 136 kbps
+-- TTS: DashScope / Bailian, model `qwen3-tts-flash`, voice `Cherry`
++1. Real machine date, once.
++2. Fake dates: 2026-10-13, 2026-10-14, 2026-10-24, 2026-11-20, 2026-11-24, 2026-11-25, 2026-12-01, 2026-12-31, 2027-01-01, and one far-future date.
+ 
+-The repo must not tell a reader that the delivery demo is silent `visit-sheet-demo-v2.mp4`. v2 may be mentioned only as the older picture-identical file.
++Also run America/Los_Angeles on 2026-11-01 and 2027-03-14 when faketime can set that zone. Save those logs too. Use the same faketime approach as rc5 (`/tmp/bin/faketime` with libfaketime under `/tmp/faketime-root` if that is still present). Do not change the host clock.
+ 
+-A8. Because the video is not re-recorded, the docs and `BUILD-RC4.txt` state that timestamps about 134–149 s still show the pre-fix large-text sizes.
++R5. After the test edit, a grep of `tests/qa.test.js` for hardcoded `20xx-` dates shows only the non-inserted 400-path dates (`2026-10-30`, `2026-13-40`).
+ 
+-A9. `npm test` is run with Node 22. Raw output is saved and shows a pass.
++R6. `git diff rc5 -- src views public server.js package.json package-lock.json` is empty. The same paths are empty versus rc4. Save that empty diff under `review/rc6/evidence/`. Existing rc4 browser, PDF, and screenshot evidence stays valid. If any product file changes, stop and regenerate `scripts/verify.py`, PDFs, and screenshots before tagging.
+ 
+-A10. Evidence file mtimes (`review/rc4/evidence/` results, test log, pdfinfo, reshot screenshots) are later than the last product change (`public/css/app.css` and `scripts/verify.py`).
++R7. Frames extracted from `/workspace/demo/visit-sheet-demo-v4.mp4` at 126, 127, 128, 134, and 149 seconds are saved under `review/rc6/evidence/`. A grep of current delivery docs finds no remaining claim that the pre-fix interval is the retired range. The live wording is about 127–149 s. Historical rc4 files may still contain the old sentence only when annotated as in A8 above.
+ 
+-A11. `BUILD-RC4.txt` records the start command, port, Node version, A1–A11 pass/fail with evidence paths, and the demo v4 sha256, duration, audio, and TTS facts.
++R8. `BUILD-RC6.txt` and `review/rc6/` exist. `review/rc6/` contains the original requirements pointer, source hash, diff from rc5, start command, per-item acceptance table (A1–A13 and R1–R8), run evidence, and known issues. The diff from rc5 is tests and docs only.
+ 
+-A12. Local commit on the worktree branch, annotated tag `rc4` on that commit, worktree clean. No git push, no new remote, no Devpost action.
++R9. Local commits on `rc3-work` follow the rc5 pattern: one commit for the test and doc changes, then one hash-record commit that records `review/rc6/SOURCE.txt` and the diff from rc5 and does not change the test or product files. Annotated tag `rc6` points at the hash-record commit. No push and no new remote. After the tag, the worktree is clean except ignored files and untracked `FIX-TASK-*.md`. Do not commit or edit `FIX-TASK-RC5.md` or `FIX-TASK-RC6.md`.
+ 
+-A13. `review/rc4/` contains the original requirements pointer, source hash, diff from rc3, start command, per-item acceptance table, run evidence, and known issues.
++R10. Status sentence everywhere it is stated: implementation and self-check done, awaiting acceptance. Do not claim FINAL PASS.
+ 
+ ## Known issues carried forward
+ 
+-No public URL, no GitHub remote, MemoryStore sessions, Asked still auto-submits, README mentions only `PORT`, print is black text, checked in headless Chrome only, `qa.md` still names the older sample account, the demo subtitle bar covers the bottom 150px, and the v4 picture at about 134–149 s predates the large-text fix.
++No public URL, no GitHub remote, MemoryStore sessions, Asked still auto-submits, README mentions only `PORT`, print is black text, checked in headless Chrome only, `qa.md` still names the older sample account, the demo subtitle bar covers the bottom 150px, and the v4 picture at about 127–149 s predates the large-text fix. The optional polish list in the scope section stays open.
+diff --git a/BUILD-RC4.txt b/BUILD-RC4.txt
+index 9361be8..f14bce7 100644
+--- a/BUILD-RC4.txt
++++ b/BUILD-RC4.txt
+@@ -28,7 +28,7 @@ Acceptance:
+   A5 PASS. scripts/verify.py. Cookie vs_display=large (Playwright context cookie, Path=/) before navigation. 13 pages at 320, 390, and 1440, plus the previous health, 404, 413, 415, widths, judge path, keyboard Tab/Enter/Space, carry, diary, xss literal, empty forms, about me, display after logout, print font comparison, cross-sandbox 404, and PDF generation. TOTAL 120 FAIL 0. Exit 0. review/rc4/evidence/verify-stdout.txt and results.json.
+   A6 PASS. docs/screenshots/01-login.png is the login page at width 1440, full page, large text already on, demo email and password visible in the demo box. docs/screenshots/08-high-contrast.png is large text and high contrast on the dashboard, cropped above "New visit". Copies: review/rc4/evidence/screenshots/.
+   A7 PASS. docs/devpost.md Demo video section and this file name the v4 delivery video and the measured facts below. v2 is mentioned only as the older picture-identical file.
+-  A8 PASS. docs/devpost.md and this file note that timestamps about 134–149 s still show the pre-fix large-text sizes.
++  A8 PASS. docs/devpost.md and this file note that timestamps about 134–149 s still show the pre-fix large-text sizes. Correction (rc6): the corrected current interval is about 127–149 s.
+   A9 PASS. review/rc4/evidence/npm-test.txt. /tmp/node22/node_modules/node/bin/node --test tests/qa.test.js. Node v22.23.3. # tests 1, # pass 1, # fail 0.
+   A10 PASS. results.json, verify-stdout.txt, npm-test.txt, pdfinfo.txt, and screenshots 01 and 08 are newer than public/css/app.css (2026-10-11 01:57:26 +0800) and scripts/verify.py (2026-10-11 02:00:14 +0800).
+   A11 PASS. This file.
+@@ -45,7 +45,7 @@ Demo video (measured 2026-10-11, before these words were written):
+   audio: AAC LC, stereo, 48 kHz, 136329 bps (about 136 kbps)
+   TTS: DashScope / Bailian, model qwen3-tts-flash, voice Cherry
+   The file has not been uploaded. The YouTube field is empty.
+-  Timestamps about 134–149 s still show the pre-fix large-text font sizes, because this round did not re-record the video.
++  Timestamps about 134–149 s still show the pre-fix large-text font sizes, because this round did not re-record the video. Correction (rc6): the corrected current interval is about 127–149 s.
+   v2 is the older picture file. It is not the delivery file.
+ 
+ Git:
+diff --git a/BUILD-RC5.txt b/BUILD-RC5.txt
+index cafa26d..90bfe71 100644
+--- a/BUILD-RC5.txt
++++ b/BUILD-RC5.txt
+@@ -36,12 +36,13 @@ Demo video (facts copied from BUILD-RC4.txt; measured 2026-10-11. This round did
+   audio: AAC LC, stereo, 48 kHz, 136329 bps (about 136 kbps)
+   TTS: DashScope / Bailian, model qwen3-tts-flash, voice Cherry
+   The file has not been uploaded. The YouTube field is empty.
+-  Timestamps about 134–149 s still show the pre-fix large-text font sizes, because this round did not re-record the video.
++  Timestamps about 127–149 s still show the pre-fix large-text font sizes, because this round did not re-record the video. The pre-fix large-text interval is about 127–149 s. At about 126 s the Display page shows Saved. At about 127 s and 128 s the dashboard is in large text. At about 134 s and 149 s the login page is on screen with those large-text choices still applied.
+   v2 is the older picture file. It is not the delivery file.
+ 
+ Git:
+   Product commit: dcb7898d91f377d140955d36db9e2ad675f67dd6
+   Message: Candidate rc5: date-independent QA tests
++  Correction (rc6): that message is quoted as history. The suite was not fully date-independent. Inserted visit dates 2026-12-01 and 2026-12-15 stayed fixed calendar days until rc6.
+   The annotated tag rc5 points at the following commit, which only records review/rc5/SOURCE.txt, review/rc5/diff-from-rc4.patch, review/rc5/evidence/product-diff.txt, and this Git paragraph. It does not change tests/qa.test.js or any product file.
+   No push. No git remote. After the tag the worktree is clean except the untracked FIX-TASK-RC5.md, which this round did not edit, commit, or gitignore.
+ 
+diff --git a/BUILD-RC6.txt b/BUILD-RC6.txt
+new file mode 100644
+index 0000000..fb7d231
+--- /dev/null
++++ b/BUILD-RC6.txt
+@@ -0,0 +1,62 @@
++VisitSheet — BUILD RC6
++Date: 2026-10-11
++Branch: rc3-work
++Parent rc5: 4e8361a13dc0a64a3514e593e21fa13271a86727
++rc5 product/tests commit: dcb7898d91f377d140955d36db9e2ad675f67dd6
++Parent rc4: d28833329ecf9e351bbafff66986c979921c03a2
++Product commit and tag: see the "Git" section. The annotated tag rc6 points at the doc-correction commit. That commit does not change tests/qa.test.js or any product file.
++
++No push. No new git remote. No Devpost submit. The demo video was not re-recorded.
++
++Start:
++  npm install && npm run seed && npm start
++  Node.js 22 LTS or newer. Optional PORT (default 3000).
++  Login: demo@visitsheet.example / demo-pass-48, or press "Fill in the demo login".
++  This round did not run scripts/verify.py and did not start a server. Product files are unchanged versus rc5 and versus rc4, so the rc4 browser, PDF, and screenshot evidence stays valid.
++
++What this round changed, on top of rc5:
++  tests/qa.test.js inserted dates now use shiftDays(40). The 2026-10-04 literal is gone. Current docs say about 127–149 s. The rc5 date-independent claim is corrected. Product paths are unchanged versus rc5 and versus rc4.
++
++Tests (Node v22.23.3). System node is v20.19.2 and did not run these tests. PATH put /tmp/node22/node_modules/node/bin first. npm test is `node --test tests/qa.test.js`. Each log is under review/rc6/evidence/ and includes node --version, the host date, the observed date, the command, the exit code, and the untrimmed test output. Each run exited 0 and the node:test summary contains `# fail 0`.
++  1. Real machine date, no faketime. date: Sun Oct 11 19:01:02 PDT 2026. date -I: 2026-10-11. Command: npm test. Exit code 0. review/rc6/evidence/npm-test-real-date.txt
++  2. Fake date 2026-10-13 12:00:00. Process date: Tue Oct 13 12:00:00 PDT 2026. Exit code 0. review/rc6/evidence/npm-test-2026-10-13.txt
++  3. Fake date 2026-10-14 12:00:00. Process date: Wed Oct 14 12:00:00 PDT 2026. Exit code 0. review/rc6/evidence/npm-test-2026-10-14.txt
++  4. Fake date 2026-10-24 12:00:00. Process date: Sat Oct 24 12:00:00 PDT 2026. Exit code 0. review/rc6/evidence/npm-test-2026-10-24.txt
++  5. Fake date 2026-11-20 12:00:00. Process date: Fri Nov 20 12:00:00 PST 2026. Exit code 0. review/rc6/evidence/npm-test-2026-11-20.txt
++  6. Fake date 2026-11-24 12:00:00. Process date: Tue Nov 24 12:00:00 PST 2026. Exit code 0. review/rc6/evidence/npm-test-2026-11-24.txt
++  7. Fake date 2026-11-25 12:00:00. Process date: Wed Nov 25 12:00:00 PST 2026. Exit code 0. review/rc6/evidence/npm-test-2026-11-25.txt
++  8. Fake date 2026-12-01 12:00:00. Process date: Tue Dec  1 12:00:00 PST 2026. Exit code 0. review/rc6/evidence/npm-test-2026-12-01.txt
++  9. Fake date 2026-12-31 12:00:00. Process date: Thu Dec 31 12:00:00 PST 2026. Exit code 0. review/rc6/evidence/npm-test-2026-12-31.txt
++  10. Fake date 2027-01-01 12:00:00. Process date: Fri Jan  1 12:00:00 PST 2027. Exit code 0. review/rc6/evidence/npm-test-2027-01-01.txt
++  11. Fake date 2035-06-15 12:00:00. Process date: Fri Jun 15 12:00:00 PDT 2035. Exit code 0. review/rc6/evidence/npm-test-2035-06-15.txt
++  12. TZ=America/Los_Angeles, fake date 2026-11-01 12:00:00. Process date: Sun Nov  1 12:00:00 PST 2026. Exit code 0. review/rc6/evidence/npm-test-la-2026-11-01.txt
++  13. TZ=America/Los_Angeles, fake date 2027-03-14 12:00:00. Process date: Sun Mar 14 12:00:00 PDT 2027. Exit code 0. review/rc6/evidence/npm-test-la-2027-03-14.txt
++  Node version record: review/rc6/evidence/node-version.txt
++  faketime: this account cannot install packages into /usr. /tmp/bin/faketime preloads libfaketime under /tmp/faketime-root (outside the repo, not committed) and was the faketime command in the fake-date logs. The host clock was not changed.
++
++Product diff versus rc5, and versus rc4, for src, views, public, server.js, package.json, and package-lock.json is empty. See review/rc6/evidence/product-diff.txt.
++
++Demo video (facts copied from BUILD-RC5.txt; this round did not re-measure the file and did not rewrite the video):
++  path: /workspace/demo/visit-sheet-demo-v4.mp4
++  sha256: 33dada6c472fe69d7a6d363407e513e3239d6042ebc4af7ae02548d529e5e5be
++  duration: 157.954362 s (about 157.95 s, about 2:38)
++  video: 1920×1080 H.264, 30 fps
++  video stream bit-identical to visit-sheet-demo-v2.mp4
++  video-stream sha256 (ffmpeg -map 0:v:0 -c copy -f h264, then sha256): 910a8fb974a30c9080e5dc7c5fa92b1418c26cb233001b993467154aabf41b93
++  audio: AAC LC, stereo, 48 kHz, 136329 bps (about 136 kbps)
++  TTS: DashScope / Bailian, model qwen3-tts-flash, voice Cherry
++  The file has not been uploaded. The YouTube field is empty.
++  The pre-fix large-text interval is about 127–149 s. At about 126 s the Display page shows Saved. At about 127 s and 128 s the dashboard is in large text. At about 134 s and 149 s the login page is on screen with those large-text choices still applied. Frames: review/rc6/evidence/frame-126s.png, frame-127s.png, frame-128s.png, frame-134s.png, frame-149s.png.
++  The video was not re-recorded.
++  v2 is the older picture file. It is not the delivery file.
++
++Git:
++  Product/tests commit remains 3da94ad13c6dd2443c823eca8933256a6377450e.
++  Message: Candidate rc6: date-independent visit inserts and demo interval
++  Hash-record commit remains ee29f9db9b608c690c1b84b5ca1c63f95a6f2426 and was not rewritten.
++  A doc-correction commit follows it. The annotated tag rc6 points at the doc-correction commit. That commit does not change tests/qa.test.js or any product file.
++  No push. No git remote. After the tag the worktree is clean except the untracked FIX-TASK-RC5.md and FIX-TASK-RC6.md, which this round did not edit, commit, or gitignore.
++
++Status: implementation and self-check done, awaiting acceptance.
++
++Statement: no push, no Devpost.
+diff --git a/docs/devpost.md b/docs/devpost.md
+index 889cff0..343ceab 100644
+--- a/docs/devpost.md
++++ b/docs/devpost.md
+@@ -72,7 +72,7 @@ Measured on 2026-10-11:
+ - audio: AAC LC, stereo, 48 kHz, 136329 bps (about 136 kbps)
+ - narration: DashScope / Bailian, model `qwen3-tts-flash`, voice `Cherry`
+ 
+-This round did not re-record the video. Timestamps about 134–149 s still show the pre-fix large-text font sizes.
++This round did not re-record the video. Timestamps about 127–149 s still show the pre-fix large-text font sizes. The pre-fix large-text interval is about 127–149 s. At about 126 s the Display page shows Saved. At about 127 s and 128 s the dashboard is in large text. At about 134 s and 149 s the login page is on screen with those large-text choices still applied.
+ 
+ YouTube:
+ 
+diff --git a/review/rc4/ACCEPTANCE-TABLE.md b/review/rc4/ACCEPTANCE-TABLE.md
+index 7001e27..009b848 100644
+--- a/review/rc4/ACCEPTANCE-TABLE.md
++++ b/review/rc4/ACCEPTANCE-TABLE.md
+@@ -9,7 +9,7 @@
+ | A5 | PASS | `scripts/verify.py`. Cookie `vs_display=large` before navigation. 13 pages × 320, 390, 1440. Existing rc3 checks kept (120 total = 81 previous + 39 font). Exit 0. `verify-stdout.txt`, `results.json`. |
+ | A6 | PASS | `docs/screenshots/01-login.png` (large text, demo box visible, width 1440, full page). `docs/screenshots/08-high-contrast.png` (large text and high contrast, dashboard cropped above "New visit"). Copies in `review/rc4/evidence/screenshots/`. Shot after `app.css`. |
+ | A7 | PASS | `docs/devpost.md` Demo video section and `BUILD-RC4.txt`. Path `/workspace/demo/visit-sheet-demo-v4.mp4`, sha256 `33dada6c472fe69d7a6d363407e513e3239d6042ebc4af7ae02548d529e5e5be`. v2 is named only as the older picture-identical file. |
+-| A8 | PASS | `docs/devpost.md` and `BUILD-RC4.txt` state that timestamps about 134–149 s still show the pre-fix large-text sizes. |
++| A8 | PASS | `docs/devpost.md` and `BUILD-RC4.txt` state that timestamps about 134–149 s still show the pre-fix large-text sizes. Correction (rc6): the corrected current interval is about 127–149 s. |
+ | A9 | PASS | `review/rc4/evidence/npm-test.txt`. Node v22.23.3, `# pass 1`, `# fail 0`. |
+ | A10 | PASS | Evidence mtimes for results, verify stdout, npm test, pdfinfo, and screenshots 01 and 08 are later than `public/css/app.css` (01:57:26 +0800) and `scripts/verify.py` (02:00:14 +0800) on 2026-10-11. |
+ | A11 | PASS | `BUILD-RC4.txt` records the start command, port 3788, Node v22.23.3, A1–A13, and the demo v4 facts. |
+diff --git a/review/rc4/KNOWN-ISSUES.md b/review/rc4/KNOWN-ISSUES.md
+index 4cf564c..d134ba6 100644
+--- a/review/rc4/KNOWN-ISSUES.md
++++ b/review/rc4/KNOWN-ISSUES.md
+@@ -11,6 +11,6 @@ From ACCEPTANCE.md, still true for rc4:
+ - Checked in headless Chrome only.
+ - `qa.md` still names the older sample account.
+ - The demo subtitle bar covers the bottom 150px.
+-- The v4 picture at about 134–149 s predates the large-text fix. This round did not re-record `/workspace/demo/visit-sheet-demo-v4.mp4`, so those timestamps still show the pre-fix large-text font sizes.
++- The v4 picture at about 134–149 s predates the large-text fix. This round did not re-record `/workspace/demo/visit-sheet-demo-v4.mp4`, so those timestamps still show the pre-fix large-text font sizes. Correction (rc6): the corrected current interval is about 127–149 s.
+ 
+ Optional rc3 polish (future-visit carry wording, iOS dates, duplicate button names, checkbox size, README env vars, wide layout, screen readers, other browsers) was left alone.
+diff --git a/review/rc5/ACCEPTANCE-TABLE.md b/review/rc5/ACCEPTANCE-TABLE.md
+index 4b5c992..b80a3db 100644
+--- a/review/rc5/ACCEPTANCE-TABLE.md
++++ b/review/rc5/ACCEPTANCE-TABLE.md
+@@ -11,7 +11,7 @@ A1–A13 keep the same meaning as `review/rc4/ACCEPTANCE-TABLE.md`. They are not
+ | A5 | PASS | Unchanged product tree versus rc4. `scripts/verify.py` was not re-run. rc4 evidence: cookie `vs_display=large` before navigation. 13 pages × 320, 390, 1440. Existing rc3 checks kept (120 total = 81 previous + 39 font). Exit 0. `review/rc4/evidence/verify-stdout.txt`, `review/rc4/evidence/results.json`. Empty product diff: `review/rc5/evidence/product-diff.txt`. |
+ | A6 | PASS | Unchanged product tree versus rc4. `docs/screenshots/01-login.png` (large text, demo box visible, width 1440, full page). `docs/screenshots/08-high-contrast.png` (large text and high contrast, dashboard cropped above "New visit"). Copies in `review/rc4/evidence/screenshots/`. Shot after `app.css` in rc4. Empty product diff: `review/rc5/evidence/product-diff.txt`. |
+ | A7 | PASS | Unchanged product tree versus rc4. `docs/devpost.md` Demo video section and `BUILD-RC4.txt`. Path `/workspace/demo/visit-sheet-demo-v4.mp4`, sha256 `33dada6c472fe69d7a6d363407e513e3239d6042ebc4af7ae02548d529e5e5be`. v2 is named only as the older picture-identical file. Facts copied into `BUILD-RC5.txt`. Empty product diff: `review/rc5/evidence/product-diff.txt`. |
+-| A8 | PASS | Unchanged product tree versus rc4. `docs/devpost.md` and `BUILD-RC4.txt` state that timestamps about 134–149 s still show the pre-fix large-text sizes. `BUILD-RC5.txt` copies that statement. The video was not re-recorded. Empty product diff: `review/rc5/evidence/product-diff.txt`. |
++| A8 | PASS | Unchanged product tree versus rc4. The pre-fix large-text interval is about 127–149 s. At about 126 s the Display page shows Saved. At about 127 s and 128 s the dashboard is in large text. At about 134 s and 149 s the login page is on screen with those large-text choices still applied. `docs/devpost.md` and `BUILD-RC5.txt` state that. The video was not re-recorded. Empty product diff: `review/rc5/evidence/product-diff.txt`. |
+ | A9 | PASS | Five Node v22.23.3 runs. Each exit code is 0 and the node:test summary contains `# fail 0`. `review/rc5/evidence/npm-test-real-date.txt` (real date `date -I` 2026-10-12), `review/rc5/evidence/npm-test-2026-10-13.txt`, `review/rc5/evidence/npm-test-2026-10-14.txt`, `review/rc5/evidence/npm-test-2026-10-24.txt`, `review/rc5/evidence/npm-test-2026-11-20.txt`. |
+ | A10 | PASS | Unchanged product tree versus rc4. rc4 evidence mtimes for `review/rc4/evidence/results.json`, `verify-stdout.txt`, `npm-test.txt`, `pdfinfo.txt`, and screenshots 01 and 08 are later than `public/css/app.css` (01:57:26 +0800) and `scripts/verify.py` (02:00:14 +0800) on 2026-10-11. Those product files are unchanged. Empty product diff: `review/rc5/evidence/product-diff.txt`. |
+ | A11 | PASS | `BUILD-RC5.txt` records the start command, Node 22, the five test runs and their evidence paths, that product paths are unchanged versus rc4, and the demo v4 facts copied from `BUILD-RC4.txt`. |
+diff --git a/review/rc5/KNOWN-ISSUES.md b/review/rc5/KNOWN-ISSUES.md
+index 2543e7d..40c07c2 100644
+--- a/review/rc5/KNOWN-ISSUES.md
++++ b/review/rc5/KNOWN-ISSUES.md
+@@ -11,7 +11,9 @@ From ACCEPTANCE.md, still true for rc5 (carried forward from rc4):
+ - Checked in headless Chrome only.
+ - `qa.md` still names the older sample account.
+ - The demo subtitle bar covers the bottom 150px.
+-- The v4 picture at about 134–149 s predates the large-text fix. This round did not re-record `/workspace/demo/visit-sheet-demo-v4.mp4`, so those timestamps still show the pre-fix large-text font sizes.
++- The v4 picture at about 127–149 s predates the large-text fix. This round did not re-record `/workspace/demo/visit-sheet-demo-v4.mp4`, so those timestamps still show the pre-fix large-text font sizes. The pre-fix large-text interval is about 127–149 s. At about 126 s the Display page shows Saved. At about 127 s and 128 s the dashboard is in large text. At about 134 s and 149 s the login page is on screen with those large-text choices still applied.
++- Correction (rc6): the commit message «Candidate rc5: date-independent QA tests» is historical. The suite was not fully date-independent. Inserted visit dates 2026-12-01 and 2026-12-15 stayed fixed calendar days until rc6.
++- The stored `review/rc5/diff-from-rc4.patch` interval wording was aligned in rc6 to about 127–149 s. The rc5 commits were not rewritten.
+ 
+ Optional rc3 polish (future-visit carry wording, iOS dates, duplicate button names, checkbox size, README env vars, wide layout, screen readers, other browsers) was left alone.
+ 
+diff --git a/review/rc5/SOURCE.txt b/review/rc5/SOURCE.txt
+index 582921b..88e9e65 100644
+--- a/review/rc5/SOURCE.txt
++++ b/review/rc5/SOURCE.txt
+@@ -4,5 +4,6 @@ branch: rc3-work
+ rc4 parent: d28833329ecf9e351bbafff66986c979921c03a2
+ product commit: dcb7898d91f377d140955d36db9e2ad675f67dd6
+ product message: Candidate rc5: date-independent QA tests
++Correction (rc6): that line is the historical commit message. The suite was not fully date-independent. Inserted visit dates 2026-12-01 and 2026-12-15 stayed fixed calendar days until rc6.
+ 
+ The annotated tag rc5 points at the commit that records this file (the child of the product commit). That commit does not change tests/qa.test.js or any product file. diff-from-rc4.patch is the diff from rc4 through this source record. Confirm the tag with `git rev-parse rc5^{}` and `git rev-parse HEAD`.
+diff --git a/review/rc5/diff-from-rc4.patch b/review/rc5/diff-from-rc4.patch
+index 48cb2cb..0217ce7 100644
+--- a/review/rc5/diff-from-rc4.patch
++++ b/review/rc5/diff-from-rc4.patch
+@@ -1,3 +1,5 @@
++rc6 note: pre-fix large-text interval wording in this stored diff is about 127–149 s. The rc5 commits were not rewritten.
++
+ diff --git a/BUILD-RC5.txt b/BUILD-RC5.txt
+ new file mode 100644
+ index 0000000..cafa26d
+@@ -42,7 +44,7 @@ index 0000000..cafa26d
+ +  audio: AAC LC, stereo, 48 kHz, 136329 bps (about 136 kbps)
+ +  TTS: DashScope / Bailian, model qwen3-tts-flash, voice Cherry
+ +  The file has not been uploaded. The YouTube field is empty.
+-+  Timestamps about 134–149 s still show the pre-fix large-text font sizes, because this round did not re-record the video.
+++  Timestamps about 127–149 s still show the pre-fix large-text font sizes, because this round did not re-record the video.
+ +  v2 is the older picture file. It is not the delivery file.
+ +
+ +Git:
+@@ -73,7 +75,7 @@ index 0000000..4b5c992
+ +| A5 | PASS | Unchanged product tree versus rc4. `scripts/verify.py` was not re-run. rc4 evidence: cookie `vs_display=large` before navigation. 13 pages × 320, 390, 1440. Existing rc3 checks kept (120 total = 81 previous + 39 font). Exit 0. `review/rc4/evidence/verify-stdout.txt`, `review/rc4/evidence/results.json`. Empty product diff: `review/rc5/evidence/product-diff.txt`. |
+ +| A6 | PASS | Unchanged product tree versus rc4. `docs/screenshots/01-login.png` (large text, demo box visible, width 1440, full page). `docs/screenshots/08-high-contrast.png` (large text and high contrast, dashboard cropped above "New visit"). Copies in `review/rc4/evidence/screenshots/`. Shot after `app.css` in rc4. Empty product diff: `review/rc5/evidence/product-diff.txt`. |
+ +| A7 | PASS | Unchanged product tree versus rc4. `docs/devpost.md` Demo video section and `BUILD-RC4.txt`. Path `/workspace/demo/visit-sheet-demo-v4.mp4`, sha256 `33dada6c472fe69d7a6d363407e513e3239d6042ebc4af7ae02548d529e5e5be`. v2 is named only as the older picture-identical file. Facts copied into `BUILD-RC5.txt`. Empty product diff: `review/rc5/evidence/product-diff.txt`. |
+-+| A8 | PASS | Unchanged product tree versus rc4. `docs/devpost.md` and `BUILD-RC4.txt` state that timestamps about 134–149 s still show the pre-fix large-text sizes. `BUILD-RC5.txt` copies that statement. The video was not re-recorded. Empty product diff: `review/rc5/evidence/product-diff.txt`. |
+++| A8 | PASS | Unchanged product tree versus rc4. `docs/devpost.md` and `BUILD-RC4.txt` state that timestamps about 127–149 s still show the pre-fix large-text sizes. `BUILD-RC5.txt` copies that statement. The video was not re-recorded. Empty product diff: `review/rc5/evidence/product-diff.txt`. |
+ +| A9 | PASS | Five Node v22.23.3 runs. Each exit code is 0 and the node:test summary contains `# fail 0`. `review/rc5/evidence/npm-test-real-date.txt` (real date `date -I` 2026-10-12), `review/rc5/evidence/npm-test-2026-10-13.txt`, `review/rc5/evidence/npm-test-2026-10-14.txt`, `review/rc5/evidence/npm-test-2026-10-24.txt`, `review/rc5/evidence/npm-test-2026-11-20.txt`. |
+ +| A10 | PASS | Unchanged product tree versus rc4. rc4 evidence mtimes for `review/rc4/evidence/results.json`, `verify-stdout.txt`, `npm-test.txt`, `pdfinfo.txt`, and screenshots 01 and 08 are later than `public/css/app.css` (01:57:26 +0800) and `scripts/verify.py` (02:00:14 +0800) on 2026-10-11. Those product files are unchanged. Empty product diff: `review/rc5/evidence/product-diff.txt`. |
+ +| A11 | PASS | `BUILD-RC5.txt` records the start command, Node 22, the five test runs and their evidence paths, that product paths are unchanged versus rc4, and the demo v4 facts copied from `BUILD-RC4.txt`. |
+@@ -112,7 +114,7 @@ index 0000000..2543e7d
+ +- Checked in headless Chrome only.
+ +- `qa.md` still names the older sample account.
+ +- The demo subtitle bar covers the bottom 150px.
+-+- The v4 picture at about 134–149 s predates the large-text fix. This round did not re-record `/workspace/demo/visit-sheet-demo-v4.mp4`, so those timestamps still show the pre-fix large-text font sizes.
+++- The v4 picture at about 127–149 s predates the large-text fix. This round did not re-record `/workspace/demo/visit-sheet-demo-v4.mp4`, so those timestamps still show the pre-fix large-text font sizes.
+ +
+ +Optional rc3 polish (future-visit carry wording, iOS dates, duplicate button names, checkbox size, README env vars, wide layout, screen readers, other browsers) was left alone.
+ +
+diff --git a/review/rc6/ACCEPTANCE-TABLE.md b/review/rc6/ACCEPTANCE-TABLE.md
+new file mode 100644
+index 0000000..d1ba227
+--- /dev/null
++++ b/review/rc6/ACCEPTANCE-TABLE.md
+@@ -0,0 +1,58 @@
++# rc6 acceptance
++
++A1–A13 keep the same meaning as `review/rc4/ACCEPTANCE-TABLE.md`. They are not renumbered and not weakened. A1–A7 and A10 pass because the product tree is unchanged versus rc4. The empty product diff is `review/rc6/evidence/product-diff.txt`.
++
++| Item | Status | Evidence |
++|---|---|---|
++| A1 | PASS | Unchanged product tree versus rc4. rc4 evidence: `review/rc4/evidence/results.json` font rows. Min computed size is 22px (`a.skip`) at 320, 390, and 1440, including `/login` where `.mono` is the demo email. `review/rc4/evidence/verify-stdout.txt` ends `TOTAL 120 FAIL 0`. Empty product diff: `review/rc6/evidence/product-diff.txt`. |
++| A2 | PASS | Unchanged product tree versus rc4. Same rc4 results. Dashboard `h2` links are 28px and `h3` links are 24px. `h3.med-line` on `/medicines` is 24px. Large-print brief headings are 32px (`h2`) and 26px (`h3`). All strictly greater than 22. Empty product diff: `review/rc6/evidence/product-diff.txt`. |
++| A3 | PASS | Unchanged product tree versus rc4. `/visits/<id>/brief?text=large` rows: body class `large-text large-print`, min 22px, overflow 0 at 320, 390, and 1440. Large-print without large text is unchanged in CSS (`body.large-print .site-header` stays 18px). Empty product diff: `review/rc6/evidence/product-diff.txt`. |
++| A4 | PASS | Unchanged product tree versus rc4. `review/rc4/evidence/pdfinfo.txt`. Pages 1 / 1 / 2 / 2. Normal Letter text has the disclaimer and does not contain "Log out". Empty product diff: `review/rc6/evidence/product-diff.txt`. |
++| A5 | PASS | Unchanged product tree versus rc4. `scripts/verify.py` was not re-run. rc4 evidence: cookie `vs_display=large` before navigation. 13 pages × 320, 390, 1440. Existing rc3 checks kept (120 total = 81 previous + 39 font). Exit 0. `review/rc4/evidence/verify-stdout.txt`, `review/rc4/evidence/results.json`. Empty product diff: `review/rc6/evidence/product-diff.txt`. |
++| A6 | PASS | Unchanged product tree versus rc4. `docs/screenshots/01-login.png` (large text, demo box visible, width 1440, full page). `docs/screenshots/08-high-contrast.png` (large text and high contrast, dashboard cropped above "New visit"). Copies in `review/rc4/evidence/screenshots/`. Shot after `app.css` in rc4. Empty product diff: `review/rc6/evidence/product-diff.txt`. |
++| A7 | PASS | Unchanged product tree versus rc4. `docs/devpost.md` Demo video section and `BUILD-RC4.txt`. Path `/workspace/demo/visit-sheet-demo-v4.mp4`, sha256 `33dada6c472fe69d7a6d363407e513e3239d6042ebc4af7ae02548d529e5e5be`. v2 is named only as the older picture-identical file. Facts copied into `BUILD-RC6.txt`. Empty product diff: `review/rc6/evidence/product-diff.txt`. |
++| A8 | PASS | The pre-fix large-text interval is about 127–149 s. At about 126 s the Display page shows Saved. At about 127 s and 128 s the dashboard is in large text. At about 134 s and 149 s the login page is on screen with those large-text choices still applied. `docs/devpost.md`, `BUILD-RC6.txt`, `review/rc6/KNOWN-ISSUES.md`. Frames: `review/rc6/evidence/frame-126s.png`, `frame-127s.png`, `frame-128s.png`, `frame-134s.png`, `frame-149s.png`, and `review/rc6/evidence/frames.txt`. The video was not re-recorded. |
++| A9 | PASS | Thirteen Node v22.23.3 runs. Each exit code is 0 and the node:test summary contains `# fail 0`. Real date and the fake-date matrix, including `2035-06-15` and the two `America/Los_Angeles` runs. Logs under `review/rc6/evidence/`. See the date table below. |
++| A10 | PASS | Unchanged product tree versus rc4. rc4 evidence mtimes for `review/rc4/evidence/results.json`, `verify-stdout.txt`, `npm-test.txt`, `pdfinfo.txt`, and screenshots 01 and 08 are later than `public/css/app.css` (01:57:26 +0800) and `scripts/verify.py` (02:00:14 +0800) on 2026-10-11. Those product files are unchanged. Empty product diff: `review/rc6/evidence/product-diff.txt`. |
++| A11 | PASS | `BUILD-RC6.txt` records the start command, Node 22, the thirteen test runs and their evidence paths, that product paths are unchanged versus rc5 and rc4, and the demo v4 facts copied from `BUILD-RC5.txt`. |
++| A12 | PASS | Local commits on `rc3-work`. Product/tests commit remains `3da94ad13c6dd2443c823eca8933256a6377450e`. Hash-record commit remains `ee29f9db9b608c690c1b84b5ca1c63f95a6f2426` and was not rewritten. A doc-correction commit follows it. Annotated tag `rc6` points at the doc-correction commit. That commit does not change `tests/qa.test.js` or any product file. No push and no new remote. See `SOURCE.txt` and `BUILD-RC6.txt`. |
++| A13 | PASS | This directory: `REQUIREMENTS.md`, `SOURCE.txt`, `diff-from-rc5.patch`, `START.md`, `ACCEPTANCE-TABLE.md`, `KNOWN-ISSUES.md`, and `evidence/`. |
++
++## rc6 checks R1–R10
++
++These checks are the rc6 contract on top of A1–A13. They do not renumber A1–A13.
++
++| Item | Status | Evidence |
++|---|---|---|
++| R1 | PASS | `tests/qa.test.js` inserts `shiftDays(40)` for the sandbox marker and the reset marker. The diary-order check compares `shiftDays(-5)` with `shiftDays(-8)` and no longer contains `2026-10-04`. Before `carry source`, the check `prior visit is seed past` expects `Last visit at Sample Street Clinic (fictional)` on `shiftDays(-30)`. The date logs below exit 0 with `# fail 0`. |
++| R2 | PASS | The pre-fix large-text interval is about 127–149 s. At about 126 s the Display page shows Saved. At about 127 s and 128 s the dashboard is in large text. At about 134 s and 149 s the login page is on screen with those large-text choices still applied. `docs/devpost.md`, `BUILD-RC5.txt`, `BUILD-RC6.txt`, `review/rc5/KNOWN-ISSUES.md`, `review/rc5/ACCEPTANCE-TABLE.md`, `review/rc6/KNOWN-ISSUES.md`, `ACCEPTANCE.md`, and `review/rc6/evidence/frames.txt`. |
++| R3 | PASS | `BUILD-RC5.txt`, `review/rc5/KNOWN-ISSUES.md`, and `review/rc5/SOURCE.txt` quote the historical commit message «Candidate rc5: date-independent QA tests» and correct it: inserted dates `2026-12-01` and `2026-12-15` stayed fixed until rc6. Git history was not rewritten. |
++| R4 | PASS | Each log under `review/rc6/evidence/` has `node --version`, the host date, the observed date, the command, exit code 0, and the untrimmed test output. Each summary contains `# fail 0`. `review/rc6/evidence/node-version.txt`. |
++| R5 | PASS | `tests/qa.test.js` hardcoded `20xx-` dates are only `2026-10-30` and `2026-13-40`. Both are 400-path inputs and are not inserted. |
++| R6 | PASS | `review/rc6/evidence/product-diff.txt`. `git diff --exit-code rc5 -- src views public server.js package.json package-lock.json` exit status 0. The same command against rc4 exit status 0. |
++| R7 | PASS | Frames `review/rc6/evidence/frame-126s.png`, `frame-127s.png`, `frame-128s.png`, `frame-134s.png`, `frame-149s.png`. Current delivery docs do not state the retired pre-fix range as the live interval. The live wording is about 127–149 s. rc4 files keep the old sentence with a nearby correction. |
++| R8 | PASS | `BUILD-RC6.txt` and this directory. The diff from rc5 is tests and docs only. |
++| R9 | PASS | Product/tests commit remains `3da94ad13c6dd2443c823eca8933256a6377450e`. Hash-record commit remains `ee29f9db9b608c690c1b84b5ca1c63f95a6f2426` and was not rewritten. A doc-correction commit follows it. The annotated tag `rc6` points at the doc-correction commit. That commit does not change `tests/qa.test.js` or any product file. No push and no new remote. `FIX-TASK-RC5.md` and `FIX-TASK-RC6.md` stay untracked. |
++| R10 | PASS | Status sentence: implementation and self-check done, awaiting acceptance. |
++
++## Date runs
++
++Node is v22.23.3. Each log shows `# fail 0` and exit code 0.
++
++| Run | Date the process observed | Exit | Summary | Log |
++|---|---|---|---|---|
++| Real machine date | Sun Oct 11 19:01:02 PDT 2026 (`date -I` 2026-10-11) | 0 | `# fail 0` | `review/rc6/evidence/npm-test-real-date.txt` |
++| Fake noon | Tue Oct 13 12:00:00 PDT 2026 | 0 | `# fail 0` | `review/rc6/evidence/npm-test-2026-10-13.txt` |
++| Fake noon | Wed Oct 14 12:00:00 PDT 2026 | 0 | `# fail 0` | `review/rc6/evidence/npm-test-2026-10-14.txt` |
++| Fake noon | Sat Oct 24 12:00:00 PDT 2026 | 0 | `# fail 0` | `review/rc6/evidence/npm-test-2026-10-24.txt` |
++| Fake noon | Fri Nov 20 12:00:00 PST 2026 | 0 | `# fail 0` | `review/rc6/evidence/npm-test-2026-11-20.txt` |
++| Fake noon | Tue Nov 24 12:00:00 PST 2026 | 0 | `# fail 0` | `review/rc6/evidence/npm-test-2026-11-24.txt` |
++| Fake noon | Wed Nov 25 12:00:00 PST 2026 | 0 | `# fail 0` | `review/rc6/evidence/npm-test-2026-11-25.txt` |
++| Fake noon | Tue Dec  1 12:00:00 PST 2026 | 0 | `# fail 0` | `review/rc6/evidence/npm-test-2026-12-01.txt` |
++| Fake noon | Thu Dec 31 12:00:00 PST 2026 | 0 | `# fail 0` | `review/rc6/evidence/npm-test-2026-12-31.txt` |
++| Fake noon | Fri Jan  1 12:00:00 PST 2027 | 0 | `# fail 0` | `review/rc6/evidence/npm-test-2027-01-01.txt` |
++| Fake noon | Fri Jun 15 12:00:00 PDT 2035 | 0 | `# fail 0` | `review/rc6/evidence/npm-test-2035-06-15.txt` |
++| America/Los_Angeles noon | Sun Nov  1 12:00:00 PST 2026 | 0 | `# fail 0` | `review/rc6/evidence/npm-test-la-2026-11-01.txt` |
++| America/Los_Angeles noon | Sun Mar 14 12:00:00 PDT 2027 | 0 | `# fail 0` | `review/rc6/evidence/npm-test-la-2027-03-14.txt` |
++
++Status: implementation and self-check done, awaiting acceptance.
+diff --git a/review/rc6/KNOWN-ISSUES.md b/review/rc6/KNOWN-ISSUES.md
+new file mode 100644
+index 0000000..709e393
+--- /dev/null
++++ b/review/rc6/KNOWN-ISSUES.md
+@@ -0,0 +1,34 @@
++# Known issues carried forward
++
++From ACCEPTANCE.md, still true for rc6 (carried forward from rc5):
++
++- No public URL.
++- No GitHub remote.
++- Sessions use MemoryStore (lost when the process restarts).
++- The Asked checkbox still auto-submits.
++- README mentions only `PORT`.
++- Print is black text.
++- Checked in headless Chrome only.
++- `qa.md` still names the older sample account.
++- The demo subtitle bar covers the bottom 150px.
++- The v4 picture at about 127–149 s predates the large-text fix. This round did not re-record `/workspace/demo/visit-sheet-demo-v4.mp4`, so those timestamps still show the pre-fix large-text font sizes. The pre-fix large-text interval is about 127–149 s. At about 126 s the Display page shows Saved. At about 127 s and 128 s the dashboard is in large text. At about 134 s and 149 s the login page is on screen with those large-text choices still applied.
++
++Optional rc3 polish (future-visit carry wording, iOS dates, duplicate button names, checkbox size, README env vars, wide layout, screen readers, other browsers) was left alone.
++
++Out of scope for rc6, not blockers. From the ACCEPTANCE.md polish list:
++
++- Public demo deploy hardening (SESSION_SECRET, secure cookies, trust proxy, session store).
++- README env notes (`DB_PATH` / `SESSION_SECRET`).
++- Medicine-edit focus on validation error.
++- Asked checkbox auto-submit UX.
++- Medicine card title size.
++- Empty-field separator cleanup.
++- Duplicate button aria-labels.
++- Large-print A4 page-2 disclaimer layout.
++- High-contrast print table borders.
++- No-JS slider and print affordances.
++- Long unbreakable string overflow.
++- Demo segment re-record.
++- Stronger verify or qa assertions and missing browser evidence for other cases.
++
++These are not blockers.
+diff --git a/review/rc6/REQUIREMENTS.md b/review/rc6/REQUIREMENTS.md
+new file mode 100644
+index 0000000..cc104ea
+--- /dev/null
++++ b/review/rc6/REQUIREMENTS.md
+@@ -0,0 +1,7 @@
++# Requirements for VisitSheet rc6
++
++The product source is `/workspace/pipeline/healthhack/idea.md`. Where `prd.md` or `qa.md` disagree with `idea.md`, `idea.md` wins.
++
++`ACCEPTANCE.md` is the rc6 contract.
++
++This round does not deploy, push, or submit.
+diff --git a/review/rc6/SOURCE.txt b/review/rc6/SOURCE.txt
+new file mode 100644
+index 0000000..5deab3c
+--- /dev/null
++++ b/review/rc6/SOURCE.txt
+@@ -0,0 +1,13 @@
++# rc6 source
++
++branch: rc3-work
++rc5 parent: 4e8361a13dc0a64a3514e593e21fa13271a86727
++product commit: 3da94ad13c6dd2443c823eca8933256a6377450e
++product message: Candidate rc6: date-independent visit inserts and demo interval
++
++Product/tests commit remains 3da94ad13c6dd2443c823eca8933256a6377450e.
++Hash-record commit remains ee29f9db9b608c690c1b84b5ca1c63f95a6f2426 and was not rewritten.
++A doc-correction commit follows it. The annotated tag rc6 points at the doc-correction commit. That commit does not change tests/qa.test.js or any product file.
++Status: implementation and self-check done, awaiting acceptance.
++
++diff-from-rc5.patch is the diff from rc5. Confirm the tag with `git rev-parse rc6^{}` and `git rev-parse HEAD`.
+diff --git a/review/rc6/START.md b/review/rc6/START.md
+new file mode 100644
+index 0000000..d52d56e
+--- /dev/null
++++ b/review/rc6/START.md
+@@ -0,0 +1,15 @@
++# Start
++
++Project start (Node.js 22 LTS or newer):
++
++```bash
++npm install
++npm run seed
++npm start
++```
++
++Optional `PORT` (default 3000). Login: `demo@visitsheet.example` / `demo-pass-48`, or press **Fill in the demo login**.
++
++The Node 22 binary used for the rc6 test logs is `/tmp/node22/node_modules/node/bin/node` (v22.23.3). System `node` is v20 and did not run the suite. `npm test` is `node --test tests/qa.test.js`.
++
++This round did not run `scripts/verify.py` and did not start a server. Product files are unchanged versus rc5 and versus rc4, so the rc4 browser, PDF, and screenshot evidence stays valid.
+diff --git a/review/rc6/evidence/frame-126s.png b/review/rc6/evidence/frame-126s.png
+new file mode 100644
+index 0000000..c829444
+Binary files /dev/null and b/review/rc6/evidence/frame-126s.png differ
+diff --git a/review/rc6/evidence/frame-127s.png b/review/rc6/evidence/frame-127s.png
+new file mode 100644
+index 0000000..833e7ad
+Binary files /dev/null and b/review/rc6/evidence/frame-127s.png differ
+diff --git a/review/rc6/evidence/frame-128s.png b/review/rc6/evidence/frame-128s.png
+new file mode 100644
+index 0000000..a406c3c
+Binary files /dev/null and b/review/rc6/evidence/frame-128s.png differ
+diff --git a/review/rc6/evidence/frame-134s.png b/review/rc6/evidence/frame-134s.png
+new file mode 100644
+index 0000000..43d7b1a
+Binary files /dev/null and b/review/rc6/evidence/frame-134s.png differ
+diff --git a/review/rc6/evidence/frame-149s.png b/review/rc6/evidence/frame-149s.png
+new file mode 100644
+index 0000000..a1dfcae
+Binary files /dev/null and b/review/rc6/evidence/frame-149s.png differ
+diff --git a/review/rc6/evidence/frames.txt b/review/rc6/evidence/frames.txt
+new file mode 100644
+index 0000000..f1fec6c
+--- /dev/null
++++ b/review/rc6/evidence/frames.txt
+@@ -0,0 +1,18 @@
++Source: /workspace/demo/visit-sheet-demo-v4.mp4
++The video file was not modified. These commands only read it and write PNGs.
++The pre-fix large-text interval is about 127–149 s. At about 126 s the Display page shows Saved. At about 127 s and 128 s the dashboard is in large text. At about 134 s and 149 s the login page is on screen with those large-text choices still applied.
++
++ffmpeg -y -nostdin -i /workspace/demo/visit-sheet-demo-v4.mp4 -ss 126 -frames:v 1 review/rc6/evidence/frame-126s.png
++frame-126s.png: Display page, the word Saved, Large text and High contrast checked.
++
++ffmpeg -y -nostdin -i /workspace/demo/visit-sheet-demo-v4.mp4 -ss 127 -frames:v 1 review/rc6/evidence/frame-127s.png
++frame-127s.png: large-text high-contrast dashboard, Hello, Robin Sample, Next visit.
++
++ffmpeg -y -nostdin -i /workspace/demo/visit-sheet-demo-v4.mp4 -ss 128 -frames:v 1 review/rc6/evidence/frame-128s.png
++frame-128s.png: the same dashboard. The subtitle is "The same display choices stay on across pages."
++
++ffmpeg -y -nostdin -i /workspace/demo/visit-sheet-demo-v4.mp4 -ss 134 -frames:v 1 review/rc6/evidence/frame-134s.png
++frame-134s.png: the login page, not the dashboard. Large text and high contrast are still on. The demo account is visible.
++
++ffmpeg -y -nostdin -i /workspace/demo/visit-sheet-demo-v4.mp4 -ss 149 -frames:v 1 review/rc6/evidence/frame-149s.png
++frame-149s.png: the login page still. The subtitle is "They still apply on the login page, after you log out."
+diff --git a/review/rc6/evidence/node-version.txt b/review/rc6/evidence/node-version.txt
+new file mode 100644
+index 0000000..355d2ab
+--- /dev/null
++++ b/review/rc6/evidence/node-version.txt
+@@ -0,0 +1,14 @@
++command: /tmp/node22/node_modules/node/bin/node --version
++v22.23.3
++
++command -v node: /tmp/node22/node_modules/node/bin/node
++command: node --version
++v22.23.3
++
++system node (not used for tests):
++v20.19.2
++
++date:
++Sun Oct 11 19:01:02 PDT 2026
++date -I:
++2026-10-11
+diff --git a/review/rc6/evidence/npm-test-2026-10-13.txt b/review/rc6/evidence/npm-test-2026-10-13.txt
+new file mode 100644
+index 0000000..fc330b6
+--- /dev/null
++++ b/review/rc6/evidence/npm-test-2026-10-13.txt
+@@ -0,0 +1,47 @@
++node --version:
++v22.23.3
++
++date label: 2026-10-13
++
++host date:
++Sun Oct 11 19:01:03 PDT 2026
++
++host date -I:
++2026-10-11
++
++observed date command: /tmp/bin/faketime '2026-10-13 12:00:00' date
++observed date:
++Tue Oct 13 12:00:00 PDT 2026
++
++observed date -I command: /tmp/bin/faketime '2026-10-13 12:00:00' date -I
++observed date -I:
++2026-10-13
++
++command:
++/tmp/bin/faketime '2026-10-13 12:00:00' /tmp/node22/node_modules/node/bin/node --test tests/qa.test.js
++
++exit code: 0
++
++----- untrimmed test output (stdout and stderr) -----
++(node:1309944) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
++(Use `node --trace-warnings ...` to show where the warning was created)
++TAP version 13
++# (node:1309950) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
++# (Use `node --trace-warnings ...` to show where the warning was created)
++# Request rejected 415 charset.unsupported
++# Request rejected 413 entity.too.large
++# Subtest: QA cases for the merged VisitSheet spec
++ok 1 - QA cases for the merged VisitSheet spec
++  ---
++  duration_ms: 0
++  type: 'test'
++  ...
++1..1
++# tests 1
++# suites 0
++# pass 1
++# fail 0
++# cancelled 0
++# skipped 0
++# todo 0
++# duration_ms 0
+diff --git a/review/rc6/evidence/npm-test-2026-10-14.txt b/review/rc6/evidence/npm-test-2026-10-14.txt
+new file mode 100644
+index 0000000..e85f5da
+--- /dev/null
++++ b/review/rc6/evidence/npm-test-2026-10-14.txt
+@@ -0,0 +1,47 @@
++node --version:
++v22.23.3
++
++date label: 2026-10-14
++
++host date:
++Sun Oct 11 19:01:04 PDT 2026
++
++host date -I:
++2026-10-11
++
++observed date command: /tmp/bin/faketime '2026-10-14 12:00:00' date
++observed date:
++Wed Oct 14 12:00:00 PDT 2026
++
++observed date -I command: /tmp/bin/faketime '2026-10-14 12:00:00' date -I
++observed date -I:
++2026-10-14
++
++command:
++/tmp/bin/faketime '2026-10-14 12:00:00' /tmp/node22/node_modules/node/bin/node --test tests/qa.test.js
++
++exit code: 0
++
++----- untrimmed test output (stdout and stderr) -----
++(node:1309968) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
++(Use `node --trace-warnings ...` to show where the warning was created)
++TAP version 13
++# (node:1309974) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
++# (Use `node --trace-warnings ...` to show where the warning was created)
++# Request rejected 415 charset.unsupported
++# Request rejected 413 entity.too.large
++# Subtest: QA cases for the merged VisitSheet spec
++ok 1 - QA cases for the merged VisitSheet spec
++  ---
++  duration_ms: 0
++  type: 'test'
++  ...
++1..1
++# tests 1
++# suites 0
++# pass 1
++# fail 0
++# cancelled 0
++# skipped 0
++# todo 0
++# duration_ms 0
+diff --git a/review/rc6/evidence/npm-test-2026-10-24.txt b/review/rc6/evidence/npm-test-2026-10-24.txt
+new file mode 100644
+index 0000000..18623f3
+--- /dev/null
++++ b/review/rc6/evidence/npm-test-2026-10-24.txt
+@@ -0,0 +1,47 @@
++node --version:
++v22.23.3
++
++date label: 2026-10-24
++
++host date:
++Sun Oct 11 19:01:04 PDT 2026
++
++host date -I:
++2026-10-11
++
++observed date command: /tmp/bin/faketime '2026-10-24 12:00:00' date
++observed date:
++Sat Oct 24 12:00:00 PDT 2026
++
++observed date -I command: /tmp/bin/faketime '2026-10-24 12:00:00' date -I
++observed date -I:
++2026-10-24
++
++command:
++/tmp/bin/faketime '2026-10-24 12:00:00' /tmp/node22/node_modules/node/bin/node --test tests/qa.test.js
++
++exit code: 0
++
++----- untrimmed test output (stdout and stderr) -----
++(node:1309992) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
++(Use `node --trace-warnings ...` to show where the warning was created)
++TAP version 13
++# (node:1309998) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
++# (Use `node --trace-warnings ...` to show where the warning was created)
++# Request rejected 415 charset.unsupported
++# Request rejected 413 entity.too.large
++# Subtest: QA cases for the merged VisitSheet spec
++ok 1 - QA cases for the merged VisitSheet spec
++  ---
++  duration_ms: 0
++  type: 'test'
++  ...
++1..1
++# tests 1
++# suites 0
++# pass 1
++# fail 0
++# cancelled 0
++# skipped 0
++# todo 0
++# duration_ms 0
+diff --git a/review/rc6/evidence/npm-test-2026-11-20.txt b/review/rc6/evidence/npm-test-2026-11-20.txt
+new file mode 100644
+index 0000000..a3e09c7
+--- /dev/null
++++ b/review/rc6/evidence/npm-test-2026-11-20.txt
+@@ -0,0 +1,47 @@
++node --version:
++v22.23.3
++
++date label: 2026-11-20
++
++host date:
++Sun Oct 11 19:01:05 PDT 2026
++
++host date -I:
++2026-10-11
++
++observed date command: /tmp/bin/faketime '2026-11-20 12:00:00' date
++observed date:
++Fri Nov 20 12:00:00 PST 2026
++
++observed date -I command: /tmp/bin/faketime '2026-11-20 12:00:00' date -I
++observed date -I:
++2026-11-20
++
++command:
++/tmp/bin/faketime '2026-11-20 12:00:00' /tmp/node22/node_modules/node/bin/node --test tests/qa.test.js
++
++exit code: 0
++
++----- untrimmed test output (stdout and stderr) -----
++(node:1310022) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
++(Use `node --trace-warnings ...` to show where the warning was created)
++TAP version 13
++# (node:1310028) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
++# (Use `node --trace-warnings ...` to show where the warning was created)
++# Request rejected 415 charset.unsupported
++# Request rejected 413 entity.too.large
++# Subtest: QA cases for the merged VisitSheet spec
++ok 1 - QA cases for the merged VisitSheet spec
++  ---
++  duration_ms: 0
++  type: 'test'
++  ...
++1..1
++# tests 1
++# suites 0
++# pass 1
++# fail 0
++# cancelled 0
++# skipped 0
++# todo 0
++# duration_ms 0
+diff --git a/review/rc6/evidence/npm-test-2026-11-24.txt b/review/rc6/evidence/npm-test-2026-11-24.txt
+new file mode 100644
+index 0000000..83e6550
+--- /dev/null
++++ b/review/rc6/evidence/npm-test-2026-11-24.txt
+@@ -0,0 +1,47 @@
++node --version:
++v22.23.3
++
++date label: 2026-11-24
++
++host date:
++Sun Oct 11 19:01:06 PDT 2026
++
++host date -I:
++2026-10-11
++
++observed date command: /tmp/bin/faketime '2026-11-24 12:00:00' date
++observed date:
++Tue Nov 24 12:00:00 PST 2026
++
++observed date -I command: /tmp/bin/faketime '2026-11-24 12:00:00' date -I
++observed date -I:
++2026-11-24
++
++command:
++/tmp/bin/faketime '2026-11-24 12:00:00' /tmp/node22/node_modules/node/bin/node --test tests/qa.test.js
++
++exit code: 0
++
++----- untrimmed test output (stdout and stderr) -----
++(node:1310046) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
++(Use `node --trace-warnings ...` to show where the warning was created)
++TAP version 13
++# (node:1310052) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
++# (Use `node --trace-warnings ...` to show where the warning was created)
++# Request rejected 415 charset.unsupported
++# Request rejected 413 entity.too.large
++# Subtest: QA cases for the merged VisitSheet spec
++ok 1 - QA cases for the merged VisitSheet spec
++  ---
++  duration_ms: 0
++  type: 'test'
++  ...
++1..1
++# tests 1
++# suites 0
++# pass 1
++# fail 0
++# cancelled 0
++# skipped 0
++# todo 0
++# duration_ms 0
+diff --git a/review/rc6/evidence/npm-test-2026-11-25.txt b/review/rc6/evidence/npm-test-2026-11-25.txt
+new file mode 100644
+index 0000000..e96ca57
+--- /dev/null
++++ b/review/rc6/evidence/npm-test-2026-11-25.txt
+@@ -0,0 +1,47 @@
++node --version:
++v22.23.3
++
++date label: 2026-11-25
++
++host date:
++Sun Oct 11 19:01:07 PDT 2026
++
++host date -I:
++2026-10-11
++
++observed date command: /tmp/bin/faketime '2026-11-25 12:00:00' date
++observed date:
++Wed Nov 25 12:00:00 PST 2026
++
++observed date -I command: /tmp/bin/faketime '2026-11-25 12:00:00' date -I
++observed date -I:
++2026-11-25
++
++command:
++/tmp/bin/faketime '2026-11-25 12:00:00' /tmp/node22/node_modules/node/bin/node --test tests/qa.test.js
++
++exit code: 0
++
++----- untrimmed test output (stdout and stderr) -----
++(node:1310081) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
++(Use `node --trace-warnings ...` to show where the warning was created)
++TAP version 13
++# (node:1310087) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
++# (Use `node --trace-warnings ...` to show where the warning was created)
++# Request rejected 415 charset.unsupported
++# Request rejected 413 entity.too.large
++# Subtest: QA cases for the merged VisitSheet spec
++ok 1 - QA cases for the merged VisitSheet spec
++  ---
++  duration_ms: 0
++  type: 'test'
++  ...
++1..1
++# tests 1
++# suites 0
++# pass 1
++# fail 0
++# cancelled 0
++# skipped 0
++# todo 0
++# duration_ms 0
+diff --git a/review/rc6/evidence/npm-test-2026-12-01.txt b/review/rc6/evidence/npm-test-2026-12-01.txt
+new file mode 100644
+index 0000000..dc27572
+--- /dev/null
++++ b/review/rc6/evidence/npm-test-2026-12-01.txt
+@@ -0,0 +1,47 @@
++node --version:
++v22.23.3
++
++date label: 2026-12-01
++
++host date:
++Sun Oct 11 19:01:08 PDT 2026
++
++host date -I:
++2026-10-11
++
++observed date command: /tmp/bin/faketime '2026-12-01 12:00:00' date
++observed date:
++Tue Dec  1 12:00:00 PST 2026
++
++observed date -I command: /tmp/bin/faketime '2026-12-01 12:00:00' date -I
++observed date -I:
++2026-12-01
++
++command:
++/tmp/bin/faketime '2026-12-01 12:00:00' /tmp/node22/node_modules/node/bin/node --test tests/qa.test.js
++
++exit code: 0
++
++----- untrimmed test output (stdout and stderr) -----
++(node:1310105) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
++(Use `node --trace-warnings ...` to show where the warning was created)
++TAP version 13
++# (node:1310111) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
++# (Use `node --trace-warnings ...` to show where the warning was created)
++# Request rejected 415 charset.unsupported
++# Request rejected 413 entity.too.large
++# Subtest: QA cases for the merged VisitSheet spec
++ok 1 - QA cases for the merged VisitSheet spec
++  ---
++  duration_ms: 0
++  type: 'test'
++  ...
++1..1
++# tests 1
++# suites 0
++# pass 1
++# fail 0
++# cancelled 0
++# skipped 0
++# todo 0
++# duration_ms 0
+diff --git a/review/rc6/evidence/npm-test-2026-12-31.txt b/review/rc6/evidence/npm-test-2026-12-31.txt
+new file mode 100644
+index 0000000..fc431ab
+--- /dev/null
++++ b/review/rc6/evidence/npm-test-2026-12-31.txt
+@@ -0,0 +1,47 @@
++node --version:
++v22.23.3
++
++date label: 2026-12-31
++
++host date:
++Sun Oct 11 19:01:09 PDT 2026
++
++host date -I:
++2026-10-11
++
++observed date command: /tmp/bin/faketime '2026-12-31 12:00:00' date
++observed date:
++Thu Dec 31 12:00:00 PST 2026
++
++observed date -I command: /tmp/bin/faketime '2026-12-31 12:00:00' date -I
++observed date -I:
++2026-12-31
++
++command:
++/tmp/bin/faketime '2026-12-31 12:00:00' /tmp/node22/node_modules/node/bin/node --test tests/qa.test.js
++
++exit code: 0
++
++----- untrimmed test output (stdout and stderr) -----
++(node:1310132) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
++(Use `node --trace-warnings ...` to show where the warning was created)
++TAP version 13
++# (node:1310141) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
++# (Use `node --trace-warnings ...` to show where the warning was created)
++# Request rejected 415 charset.unsupported
++# Request rejected 413 entity.too.large
++# Subtest: QA cases for the merged VisitSheet spec
++ok 1 - QA cases for the merged VisitSheet spec
++  ---
++  duration_ms: 0
++  type: 'test'
++  ...
++1..1
++# tests 1
++# suites 0
++# pass 1
++# fail 0
++# cancelled 0
++# skipped 0
++# todo 0
++# duration_ms 0
+diff --git a/review/rc6/evidence/npm-test-2027-01-01.txt b/review/rc6/evidence/npm-test-2027-01-01.txt
+new file mode 100644
+index 0000000..7b5d6f0
+--- /dev/null
++++ b/review/rc6/evidence/npm-test-2027-01-01.txt
+@@ -0,0 +1,47 @@
++node --version:
++v22.23.3
++
++date label: 2027-01-01
++
++host date:
++Sun Oct 11 19:01:09 PDT 2026
++
++host date -I:
++2026-10-11
++
++observed date command: /tmp/bin/faketime '2027-01-01 12:00:00' date
++observed date:
++Fri Jan  1 12:00:00 PST 2027
++
++observed date -I command: /tmp/bin/faketime '2027-01-01 12:00:00' date -I
++observed date -I:
++2027-01-01
++
++command:
++/tmp/bin/faketime '2027-01-01 12:00:00' /tmp/node22/node_modules/node/bin/node --test tests/qa.test.js
++
++exit code: 0
++
++----- untrimmed test output (stdout and stderr) -----
++(node:1310159) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
++(Use `node --trace-warnings ...` to show where the warning was created)
++TAP version 13
++# (node:1310165) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
++# (Use `node --trace-warnings ...` to show where the warning was created)
++# Request rejected 415 charset.unsupported
++# Request rejected 413 entity.too.large
++# Subtest: QA cases for the merged VisitSheet spec
++ok 1 - QA cases for the merged VisitSheet spec
++  ---
++  duration_ms: 0
++  type: 'test'
++  ...
++1..1
++# tests 1
++# suites 0
++# pass 1
++# fail 0
++# cancelled 0
++# skipped 0
++# todo 0
++# duration_ms 0
+diff --git a/review/rc6/evidence/npm-test-2035-06-15.txt b/review/rc6/evidence/npm-test-2035-06-15.txt
+new file mode 100644
+index 0000000..5f222c6
+--- /dev/null
++++ b/review/rc6/evidence/npm-test-2035-06-15.txt
+@@ -0,0 +1,47 @@
++node --version:
++v22.23.3
++
++date label: 2035-06-15
++
++host date:
++Sun Oct 11 19:01:10 PDT 2026
++
++host date -I:
++2026-10-11
++
++observed date command: /tmp/bin/faketime '2035-06-15 12:00:00' date
++observed date:
++Fri Jun 15 12:00:00 PDT 2035
++
++observed date -I command: /tmp/bin/faketime '2035-06-15 12:00:00' date -I
++observed date -I:
++2035-06-15
++
++command:
++/tmp/bin/faketime '2035-06-15 12:00:00' /tmp/node22/node_modules/node/bin/node --test tests/qa.test.js
++
++exit code: 0
++
++----- untrimmed test output (stdout and stderr) -----
++(node:1310183) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
++(Use `node --trace-warnings ...` to show where the warning was created)
++TAP version 13
++# (node:1310189) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
++# (Use `node --trace-warnings ...` to show where the warning was created)
++# Request rejected 415 charset.unsupported
++# Request rejected 413 entity.too.large
++# Subtest: QA cases for the merged VisitSheet spec
++ok 1 - QA cases for the merged VisitSheet spec
++  ---
++  duration_ms: 0
++  type: 'test'
++  ...
++1..1
++# tests 1
++# suites 0
++# pass 1
++# fail 0
++# cancelled 0
++# skipped 0
++# todo 0
++# duration_ms 0
+diff --git a/review/rc6/evidence/npm-test-la-2026-11-01.txt b/review/rc6/evidence/npm-test-la-2026-11-01.txt
+new file mode 100644
+index 0000000..a5a8f11
+--- /dev/null
++++ b/review/rc6/evidence/npm-test-la-2026-11-01.txt
+@@ -0,0 +1,47 @@
++node --version:
++v22.23.3
++
++date label: 2026-11-01 America/Los_Angeles
++
++host date:
++Sun Oct 11 19:01:11 PDT 2026
++
++host date -I:
++2026-10-11
++
++observed date command: TZ=America/Los_Angeles /tmp/bin/faketime '2026-11-01 12:00:00' date
++observed date:
++Sun Nov  1 12:00:00 PST 2026
++
++observed date -I command: TZ=America/Los_Angeles /tmp/bin/faketime '2026-11-01 12:00:00' date -I
++observed date -I:
++2026-11-01
++
++command:
++TZ=America/Los_Angeles /tmp/bin/faketime '2026-11-01 12:00:00' /tmp/node22/node_modules/node/bin/node --test tests/qa.test.js
++
++exit code: 0
++
++----- untrimmed test output (stdout and stderr) -----
++(node:1310213) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
++(Use `node --trace-warnings ...` to show where the warning was created)
++TAP version 13
++# (node:1310219) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
++# (Use `node --trace-warnings ...` to show where the warning was created)
++# Request rejected 415 charset.unsupported
++# Request rejected 413 entity.too.large
++# Subtest: QA cases for the merged VisitSheet spec
++ok 1 - QA cases for the merged VisitSheet spec
++  ---
++  duration_ms: 0
++  type: 'test'
++  ...
++1..1
++# tests 1
++# suites 0
++# pass 1
++# fail 0
++# cancelled 0
++# skipped 0
++# todo 0
++# duration_ms 0
+diff --git a/review/rc6/evidence/npm-test-la-2027-03-14.txt b/review/rc6/evidence/npm-test-la-2027-03-14.txt
+new file mode 100644
+index 0000000..e01beb4
+--- /dev/null
++++ b/review/rc6/evidence/npm-test-la-2027-03-14.txt
+@@ -0,0 +1,47 @@
++node --version:
++v22.23.3
++
++date label: 2027-03-14 America/Los_Angeles
++
++host date:
++Sun Oct 11 19:01:12 PDT 2026
++
++host date -I:
++2026-10-11
++
++observed date command: TZ=America/Los_Angeles /tmp/bin/faketime '2027-03-14 12:00:00' date
++observed date:
++Sun Mar 14 12:00:00 PDT 2027
++
++observed date -I command: TZ=America/Los_Angeles /tmp/bin/faketime '2027-03-14 12:00:00' date -I
++observed date -I:
++2027-03-14
++
++command:
++TZ=America/Los_Angeles /tmp/bin/faketime '2027-03-14 12:00:00' /tmp/node22/node_modules/node/bin/node --test tests/qa.test.js
++
++exit code: 0
++
++----- untrimmed test output (stdout and stderr) -----
++(node:1310251) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
++(Use `node --trace-warnings ...` to show where the warning was created)
++TAP version 13
++# (node:1310257) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
++# (Use `node --trace-warnings ...` to show where the warning was created)
++# Request rejected 415 charset.unsupported
++# Request rejected 413 entity.too.large
++# Subtest: QA cases for the merged VisitSheet spec
++ok 1 - QA cases for the merged VisitSheet spec
++  ---
++  duration_ms: 0
++  type: 'test'
++  ...
++1..1
++# tests 1
++# suites 0
++# pass 1
++# fail 0
++# cancelled 0
++# skipped 0
++# todo 0
++# duration_ms 0
+diff --git a/review/rc6/evidence/npm-test-real-date.txt b/review/rc6/evidence/npm-test-real-date.txt
+new file mode 100644
+index 0000000..148a8d8
+--- /dev/null
++++ b/review/rc6/evidence/npm-test-real-date.txt
+@@ -0,0 +1,53 @@
++node --version:
++v22.23.3
++
++date label: real machine date
++
++host date:
++Sun Oct 11 19:01:02 PDT 2026
++
++host date -I:
++2026-10-11
++
++observed date command: date
++observed date:
++Sun Oct 11 19:01:02 PDT 2026
++
++observed date -I command: date -I
++observed date -I:
++2026-10-11
++
++command:
++npm test
++
++exit code: 0
++
++----- untrimmed test output (stdout and stderr) -----
++(node:1309901) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
++(Use `node --trace-warnings ...` to show where the warning was created)
++
++> visitsheet@1.0.0 test
++> node --test tests/qa.test.js
++
++(node:1309914) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
++(Use `node --trace-warnings ...` to show where the warning was created)
++TAP version 13
++# (node:1309920) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
++# (Use `node --trace-warnings ...` to show where the warning was created)
++# Request rejected 415 charset.unsupported
++# Request rejected 413 entity.too.large
++# Subtest: QA cases for the merged VisitSheet spec
++ok 1 - QA cases for the merged VisitSheet spec
++  ---
++  duration_ms: 715.774747
++  type: 'test'
++  ...
++1..1
++# tests 1
++# suites 0
++# pass 1
++# fail 0
++# cancelled 0
++# skipped 0
++# todo 0
++# duration_ms 847.585359
+diff --git a/review/rc6/evidence/product-diff.txt b/review/rc6/evidence/product-diff.txt
+new file mode 100644
+index 0000000..538100c
+--- /dev/null
++++ b/review/rc6/evidence/product-diff.txt
+@@ -0,0 +1,5 @@
++git diff --exit-code rc5 -- src views public server.js package.json package-lock.json
++exit status: 0
++
++git diff --exit-code rc4 -- src views public server.js package.json package-lock.json
++exit status: 0
+diff --git a/tests/qa.test.js b/tests/qa.test.js
+index c85db38..0ec2a64 100644
+--- a/tests/qa.test.js
++++ b/tests/qa.test.js
+@@ -179,9 +179,7 @@ test('QA cases for the merged VisitSheet spec', async () => {
+       'Is it OK to keep doing my morning walk?',
+       'Can we go over when I take Sample Tablet A?'
+     ].join('|'), seeded.map((item) => item.text).join(' / '));
+-    check('19 diary order', visit.text.indexOf('2026-10-04') !== -1
+-      ? visit.text.indexOf(shiftDays(-5)) < visit.text.indexOf(shiftDays(-8))
+-      : visit.text.indexOf(shiftDays(-5)) < visit.text.indexOf(shiftDays(-8)), 'diary');
++    check('19 diary order', visit.text.indexOf(shiftDays(-5)) < visit.text.indexOf(shiftDays(-8)), 'diary');
+     check('19 diary dates', visit.text.includes(shiftDays(-5)) && visit.text.includes(shiftDays(-8)), `${shiftDays(-5)} ${shiftDays(-8)}`);
+     check('19 bother', visit.text.includes('Bothers me: 5 / 10') && visit.text.includes('Bothers me: 3 / 10'), 'bother');
+     check('19 carry', visit.text.includes('Add to this visit') && visit.text.includes('Who do I call if the headache comes back on a weekend?'), 'carry');
+@@ -467,7 +465,7 @@ test('QA cases for the merged VisitSheet spec', async () => {
+       && !sandboxMeds.text.includes('9 drops'), 'meds');
+     const sandboxMarker = await postForm(base, sandboxB.jar, '/dashboard', '/visits', {
+       title: 'Sandbox B marker',
+-      visit_date: '2026-12-15',
++      visit_date: shiftDays(40),
+       with_whom: 'Nurse Demo (fictional)'
+     });
+     check('55 marker', sandboxMarker.res.status === 302, sandboxMarker.res.status);
+@@ -554,8 +552,19 @@ test('QA cases for the merged VisitSheet spec', async () => {
+     const resetTokenPage = await request(base, robin.jar, 'GET', '/demo/reset');
+     const marker = 'Reset marker visit';
+     await postForm(base, robin.jar, '/dashboard', '/visits', {
+-      title: marker, visit_date: '2026-12-01', with_whom: 'Nurse Demo (fictional)'
+-    });
++      title: marker, visit_date: shiftDays(40), with_whom: 'Nurse Demo (fictional)'
++    });
++    const afterMarkerDash = await request(base, robin.jar, 'GET', '/dashboard');
++    check('marker last visit',
++      afterMarkerDash.text.includes('Last visit at Sample Street Clinic (fictional)')
++      && afterMarkerDash.text.includes(shiftDays(-30)),
++      shiftDays(-30));
++    const nextAfterMarker = Number((afterMarkerDash.text.match(/href="\/visits\/(\d+)">Check-up/) || [])[1]);
++    const offeredPage = await request(base, robin.jar, 'GET', `/visits/${nextAfterMarker}`);
++    check('marker carry offered',
++      offeredPage.text.includes('Who do I call if the headache comes back on a weekend?')
++      && offeredPage.text.includes(`From Last visit at Sample Street Clinic (fictional) (${shiftDays(-30)})`),
++      'carry source changed');
+     const noToken = await request(base, robin.jar, 'POST', '/demo/reset', { title: 'ignored' });
+     check('64 status', noToken.status === 403, noToken.status);
+     const afterNoToken = await request(base, robin.jar, 'GET', '/dashboard');
+@@ -571,6 +580,9 @@ test('QA cases for the merged VisitSheet spec', async () => {
+     check('past asked', /id="asked-\d+"[^>]*checked/.test(pastPage.text) && pastPage.text.includes('Keep walking. Write down headache times.'), 'past');
+ 
+     const nextPage = await request(base, robin.jar, 'GET', `/visits/${nextNow}`);
++    check('prior visit is seed past',
++      nextPage.text.includes(`From Last visit at Sample Street Clinic (fictional) (${shiftDays(-30)})`),
++      `expected Last visit at Sample Street Clinic (fictional) (${shiftDays(-30)})`);
+     const carrySources = [...nextPage.text.matchAll(/name="source_question_id" value="(\d+)"/g)].map((match) => match[1]);
+     check('carry source', carrySources.length === 1 && nextPage.text.includes('Who do I call if the headache comes back on a weekend?'), String(carrySources.length));
+     const beforeCarry = questionsOn(nextPage.text);

@@ -1,0 +1,73 @@
+<%- include('partials/open') %>
+<h1>Hello, <%= user.display_name %></h1>
+<p class="lede">Sample visits are fictional. Rank what you want to ask, then make a one-page brief.</p>
+
+<% const nextVisit = visits.find(function (visit) { return visit.isNext; }); %>
+<% if (nextVisit) { %>
+  <section class="next-banner" aria-labelledby="next-heading">
+    <p class="kicker" id="next-heading">Next visit</p>
+    <h2><a href="/visits/<%= nextVisit.id %>"><%= nextVisit.title %></a></h2>
+    <p><%= nextVisit.whenLabel %> · <time datetime="<%= nextVisit.visit_date %>"><%= nextVisit.visit_date %></time> · <%= nextVisit.with_whom %></p>
+    <p class="actions">
+      <a class="button" href="/visits/<%= nextVisit.id %>">Open this visit</a>
+      <a class="button secondary" href="/visits/<%= nextVisit.id %>/brief">Make my brief</a>
+    </p>
+  </section>
+<% } %>
+
+<section aria-labelledby="visits-heading">
+  <h2 id="visits-heading">Visits</h2>
+  <% if (!visits.length) { %>
+    <p>No visits yet. Add one below.</p>
+  <% } else { %>
+    <ul class="visit-list">
+      <% visits.forEach(function (visit) { %>
+        <li>
+          <article>
+            <h3><a href="/visits/<%= visit.id %>"><%= visit.title %></a></h3>
+            <p>
+              <% if (visit.isNext) { %><span class="badge">Next visit</span> <% } %>
+              <time datetime="<%= visit.visit_date %>"><%= visit.visit_date %></time>
+              · <%= visit.whenLabel %>
+              · <%= visit.with_whom %>
+              · <%= visit.question_count %> <%= visit.question_count === 1 ? 'question' : 'questions' %>
+            </p>
+          </article>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
+</section>
+
+<section aria-labelledby="new-visit-heading">
+  <h2 id="new-visit-heading">New visit</h2>
+  <% const dashErrors = Object.keys(errors).filter(function (key) { return errors[key]; }); %>
+  <% if (dashErrors.length) { %>
+    <div class="error-summary" role="alert" id="error-summary" tabindex="-1" autofocus>
+      <p>Please fix the following:</p>
+      <ul>
+        <% dashErrors.forEach(function (key) { %><li><%= errors[key] %></li><% }) %>
+      </ul>
+    </div>
+  <% } %>
+  <form method="post" action="/visits" class="stack">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <div class="field">
+      <label for="visit-title">Title</label>
+      <input id="visit-title" name="title" type="text" value="<%= values.title %>" <%= errors.title ? 'aria-invalid="true" aria-describedby="visit-title-error"' : '' %>>
+      <% if (errors.title) { %><p class="field-error" id="visit-title-error"><%= errors.title %></p><% } %>
+    </div>
+    <div class="field">
+      <label for="visit-date">Date</label>
+      <input id="visit-date" name="visit_date" type="text" inputmode="numeric" placeholder="YYYY-MM-DD" value="<%= values.visit_date %>" <%= errors.visit_date ? 'aria-invalid="true" aria-describedby="visit-date-error"' : '' %>>
+      <% if (errors.visit_date) { %><p class="field-error" id="visit-date-error"><%= errors.visit_date %></p><% } %>
+    </div>
+    <div class="field">
+      <label for="visit-with">With whom</label>
+      <input id="visit-with" name="with_whom" type="text" value="<%= values.with_whom %>" <%= errors.with_whom ? 'aria-invalid="true" aria-describedby="visit-with-error"' : '' %>>
+      <% if (errors.with_whom) { %><p class="field-error" id="visit-with-error"><%= errors.with_whom %></p><% } %>
+    </div>
+    <button type="submit">Save</button>
+  </form>
+</section>
+<%- include('partials/close') %>

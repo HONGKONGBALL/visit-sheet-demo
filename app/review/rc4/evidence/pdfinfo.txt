@@ -1,0 +1,84 @@
+=== pdfinfo normal-letter ===
+Title:           Check-up at Example Family Clinic (fictional) · VisitSheet
+Creator:         Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36
+Producer:        Skia/PDF m154
+CreationDate:    Sun Oct 11 02:00:49 2026 HKT
+ModDate:         Sun Oct 11 02:00:49 2026 HKT
+Custom Metadata: no
+Metadata Stream: no
+Tagged:          no
+UserProperties:  no
+Suspects:        no
+Form:            none
+JavaScript:      no
+Pages:           1
+Encrypted:       no
+Page size:       612 x 792 pts (letter)
+Page rot:        0
+File size:       23269 bytes
+Optimized:       no
+PDF version:     1.4
+=== pdfinfo normal-a4 ===
+Title:           Check-up at Example Family Clinic (fictional) · VisitSheet
+Creator:         Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36
+Producer:        Skia/PDF m154
+CreationDate:    Sun Oct 11 02:00:49 2026 HKT
+ModDate:         Sun Oct 11 02:00:49 2026 HKT
+Custom Metadata: no
+Metadata Stream: no
+Tagged:          no
+UserProperties:  no
+Suspects:        no
+Form:            none
+JavaScript:      no
+Pages:           1
+Encrypted:       no
+Page size:       595.92 x 842.88 pts (A4)
+Page rot:        0
+File size:       23285 bytes
+Optimized:       no
+PDF version:     1.4
+=== pdfinfo large-letter ===
+Title:           Check-up at Example Family Clinic (fictional) · VisitSheet
+Creator:         Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36
+Producer:        Skia/PDF m154
+CreationDate:    Sun Oct 11 02:00:50 2026 HKT
+ModDate:         Sun Oct 11 02:00:50 2026 HKT
+Custom Metadata: no
+Metadata Stream: no
+Tagged:          no
+UserProperties:  no
+Suspects:        no
+Form:            none
+JavaScript:      no
+Pages:           2
+Encrypted:       no
+Page size:       612 x 792 pts (letter)
+Page rot:        0
+File size:       24183 bytes
+Optimized:       no
+PDF version:     1.4
+=== pdfinfo large-a4 ===
+Title:           Check-up at Example Family Clinic (fictional) · VisitSheet
+Creator:         Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36
+Producer:        Skia/PDF m154
+CreationDate:    Sun Oct 11 02:00:50 2026 HKT
+ModDate:         Sun Oct 11 02:00:50 2026 HKT
+Custom Metadata: no
+Metadata Stream: no
+Tagged:          no
+UserProperties:  no
+Suspects:        no
+Form:            none
+JavaScript:      no
+Pages:           2
+Encrypted:       no
+Page size:       595.92 x 842.88 pts (A4)
+Page rot:        0
+File size:       24100 bytes
+Optimized:       no
+PDF version:     1.4
+=== pdftotext normal-letter ===
+Disclaimer present: "VisitSheet organizes your own notes. It is not medical advice. All demo data is fictional."
+"Log out" absent.
+Page counts: normal Letter 1, normal A4 1, large-print Letter 2, large-print A4 2.
